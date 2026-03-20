@@ -2,6 +2,8 @@
 
 React (FE) + Spring Boot (BE) application.
 
+![Purrfect Market homepage](docs/screenshot.png)
+
 ## Run in browser
 
 ### Frontend (FE)
