@@ -1,0 +1,25 @@
+---
+description: Purrfect Market project architecture and coding conventions
+alwaysApply: true
+---
+
+# Purrfect Market — Project Conventions
+
+## Architecture
+
+- **FE** (Frontend): `Frontend/` folder — React + TypeScript, Styled Components
+- **BE** (Backend): `Backend/` folder — Spring Boot + Java (latest LTS or codebase version)
+- **Integration**: REST APIs between FE and BE
+
+## Frontend (FE)
+
+- Use **Styled Components** for CSS
+- Use **TypeScript** for type safety
+- Modern React: functional components, hooks
+- Follow React/TypeScript best practices
+
+## Backend (BE)
+
+- Use **Java** (latest LTS or version in codebase)
+- Spring Boot for REST APIs
+- Follow Spring Boot and Java best practices
