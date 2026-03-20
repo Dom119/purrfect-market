@@ -5,6 +5,9 @@ Frontend/node_modules/
 Frontend/dist/
 Backend/target/
 
+# H2 database files
+Backend/data/
+
 # IDE
 .idea/
 *.iml
