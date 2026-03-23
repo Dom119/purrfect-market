@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react'
-import { Link } from 'react-router-dom'
+import { Link, useSearchParams } from 'react-router-dom'
 import { useCart } from '../context/CartContext'
 import { cartApi, ordersApi } from '../api/cart'
 import type { Order } from '../api/cart'
@@ -48,12 +48,14 @@ interface CartPageProps {
 }
 
 export function CartPage({ user, onLoginClick }: CartPageProps) {
+  const [searchParams, setSearchParams] = useSearchParams()
   const cart = useCart()
   const [orders, setOrders] = useState<Order[]>([])
   const [loadingOrders, setLoadingOrders] = useState(false)
   const [checkoutLoading, setCheckoutLoading] = useState(false)
   const [checkoutError, setCheckoutError] = useState<string | null>(null)
   const [lastOrderId, setLastOrderId] = useState<number | null>(null)
+  const [completingCheckout, setCompletingCheckout] = useState(false)
 
   const loadOrders = useCallback(async () => {
     if (!user) return
@@ -72,18 +74,49 @@ export function CartPage({ user, onLoginClick }: CartPageProps) {
     loadOrders()
   }, [loadOrders])
 
+  // Complete checkout when returning from Stripe with session_id
+  useEffect(() => {
+    const sessionId = searchParams.get('session_id')
+    if (!sessionId || !user || completingCheckout) return
+
+    let cancelled = false
+    setCompletingCheckout(true)
+    setCheckoutError(null)
+
+    cartApi
+      .completeCheckout(sessionId)
+      .then((orderId) => {
+        if (!cancelled) {
+          setLastOrderId(orderId)
+          setSearchParams({}, { replace: true })
+          cart?.refreshCart()
+          loadOrders()
+        }
+      })
+      .catch((err) => {
+        if (!cancelled) {
+          setCheckoutError(err instanceof Error ? err.message : 'Failed to complete order')
+          setSearchParams({}, { replace: true })
+        }
+      })
+      .finally(() => {
+        if (!cancelled) setCompletingCheckout(false)
+      })
+
+    return () => {
+      cancelled = true
+    }
+  }, [searchParams, user, completingCheckout, setSearchParams, cart, loadOrders])
+
   const handleCheckout = async () => {
     if (!user || !cart?.cart) return
     setCheckoutLoading(true)
     setCheckoutError(null)
     try {
-      const orderId = await cartApi.checkout()
-      setLastOrderId(orderId)
-      await cart.refreshCart()
-      await loadOrders()
+      const { url } = await cartApi.createCheckoutSession()
+      window.location.href = url
     } catch (err) {
       setCheckoutError(err instanceof Error ? err.message : 'Checkout failed')
-    } finally {
       setCheckoutLoading(false)
     }
   }
@@ -105,7 +138,7 @@ export function CartPage({ user, onLoginClick }: CartPageProps) {
     )
   }
 
-  const isLoading = cart?.cart === undefined && !checkoutError
+  const isLoading = (cart?.cart === undefined && !checkoutError) || completingCheckout
   const items = cart?.cart?.items ?? []
 
   if (isLoading) {
@@ -115,7 +148,7 @@ export function CartPage({ user, onLoginClick }: CartPageProps) {
           <Title>Shopping Cart</Title>
           <Subtitle>Your items</Subtitle>
         </PageHeader>
-        <Loading>Loading cart...</Loading>
+        <Loading>{completingCheckout ? 'Completing your order...' : 'Loading cart...'}</Loading>
       </PageContainer>
     )
   }

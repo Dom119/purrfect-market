@@ -63,6 +63,13 @@ export const cartApi = {
   removeItem: (productId: number) =>
     fetchApi<void>(`/cart/items/${productId}`, { method: 'DELETE' }),
   checkout: () => fetchApi<number>('/cart/checkout', { method: 'POST' }),
+  createCheckoutSession: () =>
+    fetchApi<{ url: string }>('/cart/create-checkout-session', { method: 'POST' }),
+  completeCheckout: (sessionId: string) =>
+    fetchApi<number>('/cart/complete-checkout', {
+      method: 'POST',
+      body: JSON.stringify({ sessionId }),
+    }),
 }
 
 export const ordersApi = {

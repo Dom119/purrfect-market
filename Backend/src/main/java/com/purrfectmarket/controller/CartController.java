@@ -6,6 +6,8 @@ import com.purrfectmarket.dto.CartItemResponse;
 import com.purrfectmarket.dto.CartResponse;
 import com.purrfectmarket.dto.UpdateCartRequest;
 import com.purrfectmarket.service.CartService;
+import com.purrfectmarket.service.StripeService;
+import com.stripe.exception.StripeException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.http.ResponseEntity;
@@ -16,9 +18,11 @@ import org.springframework.web.bind.annotation.*;
 public class CartController {
 
     private final CartService cartService;
+    private final StripeService stripeService;
 
-    public CartController(CartService cartService) {
+    public CartController(CartService cartService, StripeService stripeService) {
         this.cartService = cartService;
+        this.stripeService = stripeService;
     }
 
     private Long getUserId(HttpServletRequest request) {
@@ -73,4 +77,48 @@ public class CartController {
         Long orderId = cartService.checkout(userId).getId();
         return ResponseEntity.ok(orderId);
     }
+
+    @PostMapping("/create-checkout-session")
+    public ResponseEntity<CreateCheckoutSessionResponse> createCheckoutSession(HttpServletRequest request) {
+        Long userId = getUserId(request);
+        CartResponse cart = cartService.getCart(userId);
+        if (cart.items().isEmpty()) {
+            throw new IllegalStateException("Cart is empty");
+        }
+        long amountCents = (long) Math.round(cart.subtotal() * 100);
+        if (amountCents < 50) {
+            throw new IllegalStateException("Order total must be at least $0.50");
+        }
+        try {
+            String url = stripeService.createCheckoutSession(userId, amountCents);
+            return ResponseEntity.ok(new CreateCheckoutSessionResponse(url));
+        } catch (StripeException e) {
+            throw new RuntimeException("Failed to create checkout session: " + e.getMessage());
+        }
+    }
+
+    @PostMapping("/complete-checkout")
+    public ResponseEntity<Long> completeCheckout(@RequestBody CompleteCheckoutRequest body, HttpServletRequest request) {
+        Long userId = getUserId(request);
+        String sessionId = body.sessionId();
+        if (sessionId == null || sessionId.isBlank()) {
+            throw new IllegalArgumentException("sessionId is required");
+        }
+        try {
+            if (!stripeService.isPaymentComplete(sessionId)) {
+                throw new IllegalStateException("Payment was not completed");
+            }
+            String sessionUserId = stripeService.getSessionUserId(sessionId);
+            if (!String.valueOf(userId).equals(sessionUserId)) {
+                throw new IllegalStateException("Session does not match logged-in user");
+            }
+            Long orderId = cartService.checkout(userId).getId();
+            return ResponseEntity.ok(orderId);
+        } catch (StripeException e) {
+            throw new RuntimeException("Failed to verify payment: " + e.getMessage());
+        }
+    }
+
+    public record CreateCheckoutSessionResponse(String url) {}
+    public record CompleteCheckoutRequest(String sessionId) {}
 }

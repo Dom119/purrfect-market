@@ -46,3 +46,26 @@ curl -X POST http://localhost:8080/api/products \
 
 - File-based at `Backend/data/purrfect.mv.db` (persists across restarts)
 - H2 Console: http://localhost:8080/h2-console (JDBC URL: `jdbc:h2:file:./data/purrfect`)
+
+### Stripe Payments (test mode)
+
+Checkout uses Stripe in **test mode** — no real charges. Setup:
+
+1. Create a free Stripe account at [stripe.com](https://stripe.com).
+2. In the [Stripe Dashboard](https://dashboard.stripe.com), enable **Developers → API keys** and copy the **Secret key** (starts with `sk_test_`).
+3. Set the key before starting the backend:
+
+   ```bash
+   cd Backend
+   export STRIPE_API_KEY=sk_test_your_key_here
+   mvn spring-boot:run
+   ```
+
+   Or add to `Backend/src/main/resources/application.properties`:
+
+   ```
+   stripe.api.key=sk_test_your_key_here
+   ```
+
+4. When you click **Proceed to payment**, you’ll be redirected to Stripe Checkout.
+5. Use Stripe test cards, e.g. `4242 4242 4242 4242`, any future expiry, any CVC. See [Stripe test cards](https://stripe.com/docs/testing#cards).
