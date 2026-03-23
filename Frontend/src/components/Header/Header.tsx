@@ -5,6 +5,7 @@ import { AuthModal } from '../AuthModal/AuthModal'
 import { ConfirmModal } from '../ConfirmModal/ConfirmModal'
 import { authApi } from '../../api/auth'
 import { useFavorites } from '../../context/FavoritesContext'
+import { useCart } from '../../context/CartContext'
 import type { AuthResponse } from '../../api/auth'
 
 const navLinks = [
@@ -27,7 +28,9 @@ interface HeaderProps {
 export function Header({ user, onLoginSuccess, onLogout, isAuthModalOpen = false, onAuthModalOpenChange }: HeaderProps) {
   const [isLogoutConfirmOpen, setIsLogoutConfirmOpen] = useState(false)
   const favorites = useFavorites()
+  const cart = useCart()
   const favoriteCount = favorites?.favoriteIds.size ?? 0
+  const cartCount = cart?.itemCount ?? 0
 
   const handleLogoutClick = () => {
     setIsLogoutConfirmOpen(true)
@@ -93,9 +96,9 @@ export function Header({ user, onLoginSuccess, onLogout, isAuthModalOpen = false
               <UserIcon />
             </IconButton>
           )}
-          <IconButton aria-label="Cart">
+          <IconButton as={Link} to="/cart" aria-label="Cart" $showTooltip data-tooltip="Cart">
             <BagIcon />
-            <Badge>0</Badge>
+            {cartCount > 0 && <Badge>{cartCount}</Badge>}
           </IconButton>
         </Actions>
       </StyledHeader>

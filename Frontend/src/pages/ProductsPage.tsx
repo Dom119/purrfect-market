@@ -4,6 +4,7 @@ import { fetchProducts, type Product } from '../api/products'
 import { ProductCard } from '../components/ProductCard/ProductCard'
 import { ProductDetailModal } from '../components/ProductDetailModal/ProductDetailModal'
 import { useFavorites } from '../context/FavoritesContext'
+import { useCart } from '../context/CartContext'
 import {
   PageContainer,
   PageHeader,
@@ -39,6 +40,7 @@ export function ProductsPage({ user, onLoginClick }: ProductsPageProps) {
   const [searchQuery, setSearchQuery] = useState('')
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null)
   const favorites = useFavorites()
+  const cart = useCart()
 
   useEffect(() => {
     const category = categoryFromUrl && CATEGORIES.includes(categoryFromUrl)
@@ -130,6 +132,10 @@ export function ProductsPage({ user, onLoginClick }: ProductsPageProps) {
                 favorites?.toggleFavorite(product.id)
               }
             }}
+            onAddClick={() => {
+              if (!user) onLoginClick?.()
+              else cart?.addToCart(product.id)
+            }}
           />
         ))}
       </ProductGrid>
@@ -147,9 +153,14 @@ export function ProductsPage({ user, onLoginClick }: ProductsPageProps) {
               }
             : undefined
         }
-        onAddClick={() => {
-          /* TODO: Add to cart */
-        }}
+        onAddClick={
+          selectedProduct
+            ? () => {
+                if (!user) onLoginClick?.()
+                else cart?.addToCart(selectedProduct.id)
+              }
+            : undefined
+        }
       />
     </PageContainer>
   )

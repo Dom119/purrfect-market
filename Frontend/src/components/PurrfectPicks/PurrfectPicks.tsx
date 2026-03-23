@@ -4,6 +4,7 @@ import { fetchProducts, type Product } from '../../api/products'
 import { ProductCard } from '../ProductCard/ProductCard'
 import { ProductDetailModal } from '../ProductDetailModal/ProductDetailModal'
 import { useFavorites } from '../../context/FavoritesContext'
+import { useCart } from '../../context/CartContext'
 import { Section, SectionHeader, Title, ViewAll, Grid } from './PurrfectPicks.styles'
 
 interface PurrfectPicksProps {
@@ -15,6 +16,7 @@ export function PurrfectPicks({ user, onLoginClick }: PurrfectPicksProps) {
   const [products, setProducts] = useState<Product[]>([])
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null)
   const favorites = useFavorites()
+  const cart = useCart()
 
   useEffect(() => {
     fetchProducts().then((data) => setProducts(data.slice(0, 4)))
@@ -40,6 +42,10 @@ export function PurrfectPicks({ user, onLoginClick }: PurrfectPicksProps) {
                 favorites?.toggleFavorite(product.id)
               }
             }}
+            onAddClick={() => {
+              if (!user) onLoginClick?.()
+              else cart?.addToCart(product.id)
+            }}
           />
         ))}
       </Grid>
@@ -57,9 +63,14 @@ export function PurrfectPicks({ user, onLoginClick }: PurrfectPicksProps) {
               }
             : undefined
         }
-        onAddClick={() => {
-          /* TODO: Add to cart */
-        }}
+        onAddClick={
+          selectedProduct
+            ? () => {
+                if (!user) onLoginClick?.()
+                else cart?.addToCart(selectedProduct.id)
+              }
+            : undefined
+        }
       />
     </Section>
   )

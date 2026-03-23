@@ -14,6 +14,7 @@ import {
   ErrorMessage,
 } from './AuthModal.styles'
 import { authApi, type AuthResponse } from '../../api/auth'
+import { DEV_AUTH_AUTOFILL } from '../../config/devAutofill'
 
 type AuthMode = 'login' | 'register'
 
@@ -44,6 +45,13 @@ export function AuthModal({ isOpen, onClose, onSuccess }: AuthModalProps) {
       document.body.style.overflow = ''
     }
   }, [isOpen, onClose])
+
+  useEffect(() => {
+    if (isOpen && DEV_AUTH_AUTOFILL) {
+      setEmail(DEV_AUTH_AUTOFILL.email)
+      setPassword(DEV_AUTH_AUTOFILL.password)
+    }
+  }, [isOpen])
 
   const resetForm = () => {
     setName('')

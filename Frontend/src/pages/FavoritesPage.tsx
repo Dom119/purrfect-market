@@ -4,6 +4,7 @@ import { favoritesApi, type Product } from '../api/favorites'
 import { ProductCard } from '../components/ProductCard/ProductCard'
 import { ProductDetailModal } from '../components/ProductDetailModal/ProductDetailModal'
 import { useFavorites } from '../context/FavoritesContext'
+import { useCart } from '../context/CartContext'
 import {
   PageContainer,
   PageHeader,
@@ -27,6 +28,7 @@ export function FavoritesPage({ user, onLoginClick }: FavoritesPageProps) {
   const [error, setError] = useState<string | null>(null)
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null)
   const favorites = useFavorites()
+  const cart = useCart()
 
   useEffect(() => {
     if (!user) {
@@ -83,7 +85,9 @@ export function FavoritesPage({ user, onLoginClick }: FavoritesPageProps) {
     )
   }
 
-  if (products.length === 0) {
+  const displayedProducts = products.filter((p) => favorites?.favoriteIds.has(p.id))
+
+  if (displayedProducts.length === 0) {
     return (
       <PageContainer>
         <PageHeader>
@@ -105,17 +109,18 @@ export function FavoritesPage({ user, onLoginClick }: FavoritesPageProps) {
     <PageContainer>
       <PageHeader>
         <Title>My Favorites</Title>
-        <Subtitle>{products.length} product{products.length !== 1 ? 's' : ''} saved</Subtitle>
+        <Subtitle>{displayedProducts.length} product{displayedProducts.length !== 1 ? 's' : ''} saved</Subtitle>
       </PageHeader>
 
       <ProductGrid>
-        {products.map((product) => (
+        {displayedProducts.map((product) => (
           <ProductCard
             key={product.id}
             product={product}
             isFavorite={favorites?.favoriteIds.has(product.id)}
             onProductClick={() => setSelectedProduct(product)}
             onFavoriteClick={() => favorites?.toggleFavorite(product.id)}
+            onAddClick={() => cart?.addToCart(product.id)}
           />
         ))}
       </ProductGrid>
@@ -128,9 +133,9 @@ export function FavoritesPage({ user, onLoginClick }: FavoritesPageProps) {
         onFavoriteClick={
           selectedProduct ? () => favorites?.toggleFavorite(selectedProduct.id) : undefined
         }
-        onAddClick={() => {
-          /* TODO: Add to cart */
-        }}
+        onAddClick={
+          selectedProduct ? () => cart?.addToCart(selectedProduct.id) : undefined
+        }
       />
     </PageContainer>
   )

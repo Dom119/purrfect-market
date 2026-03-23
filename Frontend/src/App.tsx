@@ -5,8 +5,10 @@ import { Header } from './components/Header/Header'
 import { LandingPage } from './pages/LandingPage'
 import { ProductsPage } from './pages/ProductsPage'
 import { FavoritesPage } from './pages/FavoritesPage'
+import { CartPage } from './pages/CartPage'
 import { BlogPage } from './pages/BlogPage'
 import { FavoritesProvider } from './context/FavoritesContext'
+import { CartProvider } from './context/CartContext'
 import { authApi } from './api/auth'
 import type { AuthResponse } from './api/auth'
 
@@ -14,6 +16,7 @@ const PAGE_TITLES: Record<string, string> = {
   '/': 'Purrfect Market',
   '/products': 'Shop All | Purrfect Market',
   '/favorites': 'My Favorites | Purrfect Market',
+  '/cart': 'Shopping Cart | Purrfect Market',
   '/blog': 'Blog | Purrfect Market',
 }
 
@@ -33,6 +36,7 @@ function AppContent() {
 
   return (
     <FavoritesProvider user={user}>
+      <CartProvider user={user}>
       <GlobalStyles />
       <Header
           user={user}
@@ -69,8 +73,18 @@ function AppContent() {
               />
             }
           />
+          <Route
+            path="/cart"
+            element={
+              <CartPage
+                user={user}
+                onLoginClick={() => setIsAuthModalOpen(true)}
+              />
+            }
+          />
           <Route path="/blog" element={<BlogPage />} />
         </Routes>
+      </CartProvider>
       </FavoritesProvider>
   )
 }

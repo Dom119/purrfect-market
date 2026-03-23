@@ -48,9 +48,10 @@ public class AuthService {
         user = userRepository.save(user);
 
         // Auto-login after registration
-        authenticationManager.authenticate(
+        var auth = authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(request.email(), request.password())
         );
+        SecurityContextHolder.getContext().setAuthentication(auth);
         return new AuthResponse(user.getId(), user.getEmail(), user.getName());
     }
 

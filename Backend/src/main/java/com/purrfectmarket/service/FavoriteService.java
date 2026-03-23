@@ -6,6 +6,7 @@ import com.purrfectmarket.model.Product;
 import com.purrfectmarket.repository.FavoriteRepository;
 import com.purrfectmarket.repository.ProductRepository;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Set;
@@ -37,7 +38,7 @@ public class FavoriteService {
     public ProductResponse addFavorite(Long userId, Long productId) {
         Product product = productRepository.findById(productId)
                 .orElseThrow(() -> new IllegalArgumentException("Product not found: " + productId));
-        if (favoriteRepository.existsByUserIdAndProductId(userId, productId)) {
+        if (favoriteRepository.existsByUserIdAndProduct_Id(userId, productId)) {
             return toProductResponse(product);
         }
         Favorite favorite = new Favorite(userId, product);
@@ -45,12 +46,13 @@ public class FavoriteService {
         return toProductResponse(product);
     }
 
+    @Transactional
     public void removeFavorite(Long userId, Long productId) {
-        favoriteRepository.deleteByUserIdAndProductId(userId, productId);
+        favoriteRepository.deleteByUserIdAndProduct_Id(userId, productId);
     }
 
     public boolean isFavorite(Long userId, Long productId) {
-        return favoriteRepository.existsByUserIdAndProductId(userId, productId);
+        return favoriteRepository.existsByUserIdAndProduct_Id(userId, productId);
     }
 
     private ProductResponse toProductResponse(Product p) {
