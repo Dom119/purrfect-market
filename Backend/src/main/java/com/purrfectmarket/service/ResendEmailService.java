@@ -16,6 +16,9 @@ import java.util.Map;
 @Service
 public class ResendEmailService {
 
+    public record BroadcastResult(int sent, int failed) {
+    }
+
     private static final Logger log = LoggerFactory.getLogger(ResendEmailService.class);
 
     private static final String RESEND_API = "https://api.resend.com/emails";
@@ -46,18 +49,35 @@ public class ResendEmailService {
         return !apiKey.isBlank();
     }
 
-    /**
-     * Sends a welcome email after newsletter signup. Swallows failures so subscription still succeeds.
-     */
     public void sendWelcomeEmail(String toEmail) {
         if (!isConfigured()) {
             return;
         }
+        sendHtmlOrLog(toEmail, "Welcome to Purrfect Market", WELCOME_HTML);
+    }
+
+    public BroadcastResult sendHtmlBulk(List<String> emails, String subject, String html) {
+        if (!isConfigured()) {
+            throw new IllegalStateException("Resend is not configured. Set RESEND_API_KEY.");
+        }
+        int sent = 0;
+        int failed = 0;
+        for (String to : emails) {
+            if (sendHtmlOrLog(to, subject, html)) {
+                sent++;
+            } else {
+                failed++;
+            }
+        }
+        return new BroadcastResult(sent, failed);
+    }
+
+    private boolean sendHtmlOrLog(String toEmail, String subject, String html) {
         Map<String, Object> body = new LinkedHashMap<>();
         body.put("from", from);
         body.put("to", List.of(toEmail));
-        body.put("subject", "Welcome to Purrfect Market");
-        body.put("html", WELCOME_HTML);
+        body.put("subject", subject);
+        body.put("html", html);
         if (!replyTo.isBlank()) {
             body.put("reply_to", replyTo);
         }
@@ -69,10 +89,13 @@ public class ResendEmailService {
                     .body(body)
                     .retrieve()
                     .toBodilessEntity();
+            return true;
         } catch (RestClientResponseException e) {
             log.warn("Resend API error {} for {}: {}", e.getStatusCode().value(), toEmail, e.getResponseBodyAsString());
+            return false;
         } catch (Exception e) {
-            log.warn("Failed to send welcome email to {}: {}", toEmail, e.getMessage());
+            log.warn("Failed to send email to {}: {}", toEmail, e.getMessage());
+            return false;
         }
     }
 }

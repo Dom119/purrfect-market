@@ -35,7 +35,8 @@ public class ProductSeeder implements CommandLineRunner {
                         4.9,
                         128,
                         "New",
-                        true
+                        true,
+                        120
                 ),
                 new ProductRequest(
                         "Feather Wand Toy",
@@ -46,7 +47,8 @@ public class ProductSeeder implements CommandLineRunner {
                         4.8,
                         256,
                         "Sale",
-                        false
+                        false,
+                        200
                 ),
                 new ProductRequest(
                         "Cozy Cave Bed",
@@ -57,7 +59,8 @@ public class ProductSeeder implements CommandLineRunner {
                         4.7,
                         89,
                         null,
-                        true
+                        true,
+                        60
                 ),
                 new ProductRequest(
                         "Dental Chew Sticks",
@@ -68,7 +71,8 @@ public class ProductSeeder implements CommandLineRunner {
                         4.9,
                         312,
                         null,
-                        true
+                        true,
+                        400
                 ),
                 new ProductRequest(
                         "Tuna & Chicken Pate",
@@ -79,7 +83,8 @@ public class ProductSeeder implements CommandLineRunner {
                         4.8,
                         445,
                         null,
-                        true
+                        true,
+                        300
                 ),
                 new ProductRequest(
                         "Laser Pointer Toy",
@@ -90,7 +95,8 @@ public class ProductSeeder implements CommandLineRunner {
                         4.6,
                         203,
                         null,
-                        false
+                        false,
+                        150
                 ),
                 new ProductRequest(
                         "Window Perch",
@@ -101,7 +107,8 @@ public class ProductSeeder implements CommandLineRunner {
                         4.8,
                         167,
                         "New",
-                        true
+                        true,
+                        75
                 ),
                 new ProductRequest(
                         "Slicker Brush",
@@ -112,7 +119,8 @@ public class ProductSeeder implements CommandLineRunner {
                         4.9,
                         278,
                         null,
-                        true
+                        true,
+                        250
                 )
         );
 

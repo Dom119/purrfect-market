@@ -1,10 +1,10 @@
 package com.purrfectmarket.controller;
 
-import com.purrfectmarket.dto.ProductRequest;
 import com.purrfectmarket.dto.ProductResponse;
 import com.purrfectmarket.model.Product;
 import com.purrfectmarket.repository.ProductRepository;
 import com.purrfectmarket.service.ProductService;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -41,26 +41,20 @@ public class ProductController {
         }
 
         List<ProductResponse> response = products.stream()
-                .map(p -> new ProductResponse(
-                        p.getId(),
-                        p.getName(),
-                        p.getDescription(),
-                        p.getPrice(),
-                        p.getCategory(),
-                        p.getImageUrl(),
-                        p.getRating(),
-                        p.getReviewCount(),
-                        p.getBadge(),
-                        p.getInStock() != null ? p.getInStock() : true
-                ))
+                .map(productService::toResponse)
                 .toList();
 
         return ResponseEntity.ok(response);
     }
 
-    @PostMapping
-    public ResponseEntity<ProductResponse> createProduct(@RequestBody ProductRequest request) {
-        ProductResponse created = productService.createProduct(request);
-        return ResponseEntity.status(201).body(created);
+    @GetMapping("/{id}/image")
+    public ResponseEntity<byte[]> getProductImage(@PathVariable Long id) {
+        Product p = productRepository.findById(id).orElse(null);
+        if (p == null || p.getImageData() == null || p.getImageData().length == 0) {
+            return ResponseEntity.notFound().build();
+        }
+        String ct = p.getImageContentType() != null ? p.getImageContentType() : MediaType.IMAGE_JPEG_VALUE;
+        MediaType mediaType = MediaType.parseMediaType(ct);
+        return ResponseEntity.ok().contentType(mediaType).body(p.getImageData());
     }
 }

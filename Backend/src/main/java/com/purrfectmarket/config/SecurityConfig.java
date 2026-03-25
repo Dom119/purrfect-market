@@ -2,6 +2,7 @@ package com.purrfectmarket.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -28,9 +29,11 @@ public class SecurityConfig {
                 .addFilterAfter(new SessionAuthFilter(), SecurityContextHolderFilter.class)
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/api/auth/**").permitAll()
-                        .requestMatchers("/api/products", "/api/products/**").permitAll()
                         .requestMatchers("/api/hello").permitAll()
                         .requestMatchers("/api/newsletter/**").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/products/*/image").permitAll()
+                        .requestMatchers("/api/products", "/api/products/**").permitAll()
+                        .requestMatchers("/api/admin/**").hasRole("MAIN_ADMIN")
                         .requestMatchers("/h2-console/**").permitAll()
                         .requestMatchers("/api/**").authenticated()
                 )

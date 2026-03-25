@@ -25,6 +25,12 @@ export interface AuthResponse {
   id: number
   email: string
   name: string
+  /** "MAIN_ADMIN" | "USER" */
+  userGroup?: string
+}
+
+export function isMainAdmin(user: AuthResponse | null | undefined): boolean {
+  return user?.userGroup === 'MAIN_ADMIN'
 }
 
 export interface LoginRequest {

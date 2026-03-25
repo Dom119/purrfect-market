@@ -7,11 +7,13 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -31,10 +33,15 @@ public class SessionAuthFilter extends OncePerRequestFilter {
         if (session != null) {
             Object userAttr = session.getAttribute(SESSION_USER_ATTR);
             if (userAttr instanceof AuthResponse user && user.id() != null) {
+                List<GrantedAuthority> authorities = new ArrayList<>();
+                authorities.add(new SimpleGrantedAuthority("ROLE_USER"));
+                if ("MAIN_ADMIN".equals(user.userGroup())) {
+                    authorities.add(new SimpleGrantedAuthority("ROLE_MAIN_ADMIN"));
+                }
                 var auth = new UsernamePasswordAuthenticationToken(
                         user.email(),
                         null,
-                        List.of(new SimpleGrantedAuthority("ROLE_USER"))
+                        authorities
                 );
                 SecurityContextHolder.getContext().setAuthentication(auth);
             }

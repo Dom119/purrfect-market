@@ -2,7 +2,6 @@ package com.purrfectmarket.service;
 
 import com.purrfectmarket.dto.CartItemResponse;
 import com.purrfectmarket.dto.CartResponse;
-import com.purrfectmarket.dto.ProductResponse;
 import com.purrfectmarket.model.CartItem;
 import com.purrfectmarket.model.Order;
 import com.purrfectmarket.model.OrderItem;
@@ -10,6 +9,7 @@ import com.purrfectmarket.model.Product;
 import com.purrfectmarket.repository.CartItemRepository;
 import com.purrfectmarket.repository.OrderRepository;
 import com.purrfectmarket.repository.ProductRepository;
+import com.purrfectmarket.util.ProductUrls;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -44,7 +44,7 @@ public class CartService {
             itemResponses.add(new CartItemResponse(
                     p.getId(),
                     p.getName(),
-                    p.getImageUrl(),
+                    ProductUrls.publicImageUrl(p),
                     p.getPrice(),
                     ci.getQuantity(),
                     itemSubtotal
@@ -60,8 +60,11 @@ public class CartService {
         int qty = quantity != null && quantity > 0 ? quantity : 1;
 
         CartItem existing = cartItemRepository.findByUserIdAndProduct_Id(userId, productId).orElse(null);
+        int newTotalQty = qty + (existing != null ? existing.getQuantity() : 0);
+        assertStock(product, newTotalQty);
+
         if (existing != null) {
-            existing.setQuantity(existing.getQuantity() + qty);
+            existing.setQuantity(newTotalQty);
             cartItemRepository.save(existing);
             return toCartItemResponse(existing);
         }
@@ -76,6 +79,7 @@ public class CartService {
         CartItem item = cartItemRepository.findByUserIdAndProduct_Id(userId, productId)
                 .orElseThrow(() -> new IllegalArgumentException("Cart item not found"));
         if (quantity != null && quantity > 0) {
+            assertStock(item.getProduct(), quantity);
             item.setQuantity(quantity);
             cartItemRepository.save(item);
         } else {
@@ -83,6 +87,14 @@ public class CartService {
             return null;
         }
         return toCartItemResponse(item);
+    }
+
+    private void assertStock(Product product, int requestedQty) {
+        int inv = product.getInventoryQuantity() != null ? product.getInventoryQuantity() : 0;
+        if (requestedQty > inv) {
+            throw new IllegalStateException(
+                    "Only " + inv + " in stock for \"" + product.getName() + "\"");
+        }
     }
 
     @Transactional
@@ -95,6 +107,14 @@ public class CartService {
         List<CartItem> items = cartItemRepository.findByUserIdOrderByIdDesc(userId);
         if (items.isEmpty()) {
             throw new IllegalStateException("Cart is empty");
+        }
+
+        for (CartItem ci : items) {
+            Product p = productRepository.findById(ci.getProduct().getId()).orElseThrow();
+            int inv = p.getInventoryQuantity() != null ? p.getInventoryQuantity() : 0;
+            if (inv < ci.getQuantity()) {
+                throw new IllegalStateException("Not enough stock for: " + p.getName());
+            }
         }
 
         double total = 0;
@@ -110,6 +130,15 @@ public class CartService {
         }
         order = orderRepository.save(order);
         cartItemRepository.deleteByUserId(userId);
+
+        for (CartItem ci : items) {
+            Product p = productRepository.findById(ci.getProduct().getId()).orElseThrow();
+            int newInv = (p.getInventoryQuantity() != null ? p.getInventoryQuantity() : 0) - ci.getQuantity();
+            p.setInventoryQuantity(Math.max(0, newInv));
+            p.setInStock(newInv > 0);
+            productRepository.save(p);
+        }
+
         return order;
     }
 
@@ -118,7 +147,7 @@ public class CartService {
         return new CartItemResponse(
                 p.getId(),
                 p.getName(),
-                p.getImageUrl(),
+                ProductUrls.publicImageUrl(p),
                 p.getPrice(),
                 ci.getQuantity(),
                 p.getPrice() * ci.getQuantity()

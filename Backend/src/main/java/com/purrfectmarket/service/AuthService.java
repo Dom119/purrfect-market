@@ -4,6 +4,7 @@ import com.purrfectmarket.dto.AuthResponse;
 import com.purrfectmarket.dto.LoginRequest;
 import com.purrfectmarket.dto.RegisterRequest;
 import com.purrfectmarket.model.User;
+import com.purrfectmarket.model.UserGroup;
 import com.purrfectmarket.repository.UserRepository;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -32,7 +33,7 @@ public class AuthService {
         );
         SecurityContextHolder.getContext().setAuthentication(auth);
         User user = userRepository.findByEmailIgnoreCase(request.email()).orElseThrow();
-        return new AuthResponse(user.getId(), user.getEmail(), user.getName());
+        return toResponse(user);
     }
 
     public AuthResponse register(RegisterRequest request) {
@@ -52,7 +53,18 @@ public class AuthService {
                 new UsernamePasswordAuthenticationToken(request.email(), request.password())
         );
         SecurityContextHolder.getContext().setAuthentication(auth);
-        return new AuthResponse(user.getId(), user.getEmail(), user.getName());
+        return toResponse(user);
+    }
+
+    public AuthResponse toResponse(User user) {
+        UserGroup g = user.getUserGroup() != null ? user.getUserGroup() : UserGroup.USER;
+        return new AuthResponse(user.getId(), user.getEmail(), user.getName(), g.name());
+    }
+
+    public AuthResponse refreshAuthResponse(Long userId) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new IllegalArgumentException("User not found"));
+        return toResponse(user);
     }
 
     public void logout() {

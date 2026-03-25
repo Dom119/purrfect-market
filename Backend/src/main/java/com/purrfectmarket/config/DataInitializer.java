@@ -1,6 +1,7 @@
 package com.purrfectmarket.config;
 
 import com.purrfectmarket.model.User;
+import com.purrfectmarket.model.UserGroup;
 import com.purrfectmarket.repository.UserRepository;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -26,6 +27,24 @@ public class DataInitializer implements CommandLineRunner {
                     "Test User"
             );
             userRepository.save(testUser);
+        }
+
+        String mainAdminEmail = "quydung119@gmail.com";
+        if (userRepository.findByEmailIgnoreCase(mainAdminEmail).isEmpty()) {
+            User mainAdmin = new User(
+                    mainAdminEmail,
+                    passwordEncoder.encode("PurrfectAdmin!2025"),
+                    "Main Admin"
+            );
+            mainAdmin.setUserGroup(UserGroup.MAIN_ADMIN);
+            userRepository.save(mainAdmin);
+        } else {
+            userRepository.findByEmailIgnoreCase(mainAdminEmail).ifPresent(u -> {
+                if (u.getUserGroup() != UserGroup.MAIN_ADMIN) {
+                    u.setUserGroup(UserGroup.MAIN_ADMIN);
+                    userRepository.save(u);
+                }
+            });
         }
     }
 }

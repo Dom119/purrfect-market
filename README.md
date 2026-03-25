@@ -39,6 +39,12 @@ API: [http://localhost:8080/api/hello](http://localhost:8080/api/hello)
 
 Test user: `test@purrfect.com` / `password`
 
+### Main admin
+
+- On first startup, if no user exists with **quydung119@gmail.com**, one is created with password **`PurrfectAdmin!2025`** and role **MAIN_ADMIN**. If that email already exists (e.g. you registered first), the next run promotes it to **MAIN_ADMIN**.
+- After logging in as main admin, open **Admin** in the header for orders, products/inventory, newsletter tools, and **Users** (promote/demote Main Admin vs User; at least one Main Admin must remain).
+- Admin APIs are under `/api/admin/**` (403 for everyone else). Change the default admin password after first login if others can access your machine.
+
 ### Add Product (API)
 
 ```bash

@@ -19,6 +19,10 @@ public class User {
     @Column(nullable = false)
     private String name;
 
+    @Enumerated(EnumType.STRING)
+    @Column(name = "user_group")
+    private UserGroup userGroup = UserGroup.USER;
+
     protected User() {
     }
 
@@ -26,6 +30,15 @@ public class User {
         this.email = email;
         this.passwordHash = passwordHash;
         this.name = name;
+        this.userGroup = UserGroup.USER;
+    }
+
+    public UserGroup getUserGroup() {
+        return userGroup != null ? userGroup : UserGroup.USER;
+    }
+
+    public void setUserGroup(UserGroup userGroup) {
+        this.userGroup = userGroup != null ? userGroup : UserGroup.USER;
     }
 
     public Long getId() {

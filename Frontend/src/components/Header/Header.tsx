@@ -7,6 +7,7 @@ import { authApi } from '../../api/auth'
 import { useFavorites } from '../../context/FavoritesContext'
 import { useCart } from '../../context/CartContext'
 import type { AuthResponse } from '../../api/auth'
+import { isMainAdmin } from '../../api/auth'
 
 const navLinks = [
   { label: 'Shop All', to: '/products' },
@@ -56,6 +57,11 @@ export function Header({ user, onLoginSuccess, onLogout, isAuthModalOpen = false
               {link.label}
             </NavLink>
           ))}
+          {user && isMainAdmin(user) && (
+            <NavLink as={Link} to="/admin/orders">
+              Admin
+            </NavLink>
+          )}
         </Nav>
         <Actions>
           <IconButton
