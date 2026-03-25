@@ -260,10 +260,10 @@ export const OrderCard = styled.div`
 export const OrderHeader = styled.div`
   display: flex;
   justify-content: space-between;
-  align-items: center;
+  align-items: flex-start;
   margin-bottom: 1rem;
   flex-wrap: wrap;
-  gap: 0.5rem;
+  gap: 0.75rem;
 `
 
 export const OrderId = styled.span`
@@ -314,4 +314,82 @@ export const SuccessTitle = styled.h2`
 export const SuccessText = styled.p`
   color: #15803d;
   margin-bottom: 1rem;
+`
+
+export const SuccessDetailGrid = styled.div`
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  justify-content: center;
+  margin-top: 1rem;
+`
+
+export const ConfirmingCard = styled.div`
+  max-width: 32rem;
+  margin: 2rem auto;
+  padding: 2.5rem 2rem;
+  text-align: center;
+  background: ${theme.colors.white};
+  border-radius: ${theme.radius.lg};
+  box-shadow: ${theme.shadows.md};
+  border: 1px solid #e8ecf1;
+`
+
+export const ConfirmingTitle = styled.h2`
+  font-size: 1.35rem;
+  font-weight: 700;
+  color: ${theme.colors.navy};
+  margin-bottom: 0.5rem;
+`
+
+export const ConfirmingSubtitle = styled.p`
+  font-size: 1rem;
+  color: ${theme.colors.grey};
+  line-height: 1.5;
+  margin-bottom: 1.5rem;
+`
+
+export const Spinner = styled.div`
+  width: 48px;
+  height: 48px;
+  margin: 0 auto 1.25rem;
+  border: 3px solid ${theme.colors.greyLight};
+  border-top-color: ${theme.colors.primary};
+  border-radius: 50%;
+  animation: spin 0.75s linear infinite;
+
+  @keyframes spin {
+    to {
+      transform: rotate(360deg);
+    }
+  }
+`
+
+export const StatusBadge = styled.span<{ $variant: 'payment' | 'shipping' }>`
+  display: inline-flex;
+  align-items: center;
+  padding: 0.35rem 0.75rem;
+  font-size: 0.8rem;
+  font-weight: 600;
+  border-radius: 999px;
+  ${(p) =>
+    p.$variant === 'payment'
+      ? `
+    background: #ecfdf5;
+    color: #047857;
+    border: 1px solid #a7f3d0;
+  `
+      : `
+    background: #eff6ff;
+    color: #1d4ed8;
+    border: 1px solid #bfdbfe;
+  `}
+`
+
+export const OrderMeta = styled.div`
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-top: 0.5rem;
+  width: 100%;
 `

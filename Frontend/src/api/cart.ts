@@ -45,7 +45,17 @@ export interface Order {
   status: string
   totalAmount: number
   createdAt: string
+  paymentStatus: string
+  shippingStatus: string
   items: OrderItem[]
+}
+
+export interface CheckoutCompletion {
+  orderId: number
+  totalAmount: number
+  paymentStatus: string
+  shippingStatus: string
+  createdAt: string
 }
 
 export const cartApi = {
@@ -66,7 +76,7 @@ export const cartApi = {
   createCheckoutSession: () =>
     fetchApi<{ url: string }>('/cart/create-checkout-session', { method: 'POST' }),
   completeCheckout: (sessionId: string) =>
-    fetchApi<number>('/cart/complete-checkout', {
+    fetchApi<CheckoutCompletion>('/cart/complete-checkout', {
       method: 'POST',
       body: JSON.stringify({ sessionId }),
     }),

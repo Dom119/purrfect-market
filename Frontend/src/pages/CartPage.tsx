@@ -2,7 +2,8 @@ import { useState, useEffect, useCallback } from 'react'
 import { Link, useSearchParams } from 'react-router-dom'
 import { useCart } from '../context/CartContext'
 import { cartApi, ordersApi } from '../api/cart'
-import type { Order } from '../api/cart'
+import type { Order, CheckoutCompletion } from '../api/cart'
+import { formatPaymentStatus, formatShippingStatus } from './orderStatusLabels'
 import {
   PageContainer,
   PageHeader,
@@ -40,6 +41,13 @@ import {
   SuccessMessage,
   SuccessTitle,
   SuccessText,
+  SuccessDetailGrid,
+  ConfirmingCard,
+  ConfirmingTitle,
+  ConfirmingSubtitle,
+  Spinner,
+  StatusBadge,
+  OrderMeta,
 } from './CartPage.styles'
 
 interface CartPageProps {
@@ -54,8 +62,7 @@ export function CartPage({ user, onLoginClick }: CartPageProps) {
   const [loadingOrders, setLoadingOrders] = useState(false)
   const [checkoutLoading, setCheckoutLoading] = useState(false)
   const [checkoutError, setCheckoutError] = useState<string | null>(null)
-  const [lastOrderId, setLastOrderId] = useState<number | null>(null)
-  const [completingCheckout, setCompletingCheckout] = useState(false)
+  const [checkoutSummary, setCheckoutSummary] = useState<CheckoutCompletion | null>(null)
 
   const loadOrders = useCallback(async () => {
     if (!user) return
@@ -74,20 +81,19 @@ export function CartPage({ user, onLoginClick }: CartPageProps) {
     loadOrders()
   }, [loadOrders])
 
-  // Complete checkout when returning from Stripe with session_id
+  const stripeSessionId = searchParams.get('session_id')
+
   useEffect(() => {
-    const sessionId = searchParams.get('session_id')
-    if (!sessionId || !user || completingCheckout) return
+    if (!stripeSessionId || !user) return
 
     let cancelled = false
-    setCompletingCheckout(true)
     setCheckoutError(null)
 
     cartApi
-      .completeCheckout(sessionId)
-      .then((orderId) => {
+      .completeCheckout(stripeSessionId)
+      .then((summary) => {
         if (!cancelled) {
-          setLastOrderId(orderId)
+          setCheckoutSummary(summary)
           setSearchParams({}, { replace: true })
           cart?.refreshCart()
           loadOrders()
@@ -99,14 +105,11 @@ export function CartPage({ user, onLoginClick }: CartPageProps) {
           setSearchParams({}, { replace: true })
         }
       })
-      .finally(() => {
-        if (!cancelled) setCompletingCheckout(false)
-      })
 
     return () => {
       cancelled = true
     }
-  }, [searchParams, user, completingCheckout, setSearchParams, cart, loadOrders])
+  }, [stripeSessionId, user, setSearchParams, cart, loadOrders])
 
   const handleCheckout = async () => {
     if (!user || !cart?.cart) return
@@ -138,17 +141,36 @@ export function CartPage({ user, onLoginClick }: CartPageProps) {
     )
   }
 
-  const isLoading = (cart?.cart === undefined && !checkoutError) || completingCheckout
+  if (stripeSessionId) {
+    return (
+      <PageContainer>
+        <PageHeader>
+          <Title>Payment received</Title>
+          <Subtitle>We’re finishing your order — this only takes a moment</Subtitle>
+        </PageHeader>
+        <ConfirmingCard>
+          <Spinner />
+          <ConfirmingTitle>Confirming your payment</ConfirmingTitle>
+          <ConfirmingSubtitle>
+            We’re verifying your payment with Stripe and saving your order. You’ll see your receipt
+            and tracking status on the next screen.
+          </ConfirmingSubtitle>
+        </ConfirmingCard>
+      </PageContainer>
+    )
+  }
+
+  const cartLoading = cart?.cart === undefined && !checkoutError
   const items = cart?.cart?.items ?? []
 
-  if (isLoading) {
+  if (cartLoading) {
     return (
       <PageContainer>
         <PageHeader>
           <Title>Shopping Cart</Title>
           <Subtitle>Your items</Subtitle>
         </PageHeader>
-        <Loading>{completingCheckout ? 'Completing your order...' : 'Loading cart...'}</Loading>
+        <Loading>Loading cart...</Loading>
       </PageContainer>
     )
   }
@@ -164,16 +186,29 @@ export function CartPage({ user, onLoginClick }: CartPageProps) {
         </Subtitle>
       </PageHeader>
 
-      {lastOrderId && (
+      {checkoutSummary && (
         <SuccessMessage>
-          <SuccessTitle>Order placed successfully!</SuccessTitle>
-          <SuccessText>Thank you for your purchase. Your order #{lastOrderId} has been confirmed.</SuccessText>
+          <SuccessTitle>Payment successful</SuccessTitle>
+          <SuccessText>
+            Order #{checkoutSummary.orderId} — ${checkoutSummary.totalAmount.toFixed(2)} charged successfully.
+          </SuccessText>
+          <SuccessDetailGrid>
+            <StatusBadge $variant="payment">
+              Payment: {formatPaymentStatus(checkoutSummary.paymentStatus)}
+            </StatusBadge>
+            <StatusBadge $variant="shipping">
+              Shipping: {formatShippingStatus(checkoutSummary.shippingStatus)}
+            </StatusBadge>
+          </SuccessDetailGrid>
+          <SuccessText style={{ marginTop: '1rem', fontSize: '0.95rem' }}>
+            We’ll email you when your package ships. You can always check status below in My orders.
+          </SuccessText>
         </SuccessMessage>
       )}
 
       {checkoutError && <ErrorMessage>{checkoutError}</ErrorMessage>}
 
-      {items.length === 0 && !lastOrderId ? (
+      {items.length === 0 && !checkoutSummary ? (
         <EmptyMessage>
           Your cart is empty.{' '}
           <EmptyLink as={Link} to="/products">
@@ -257,7 +292,17 @@ export function CartPage({ user, onLoginClick }: CartPageProps) {
           orders.map((order) => (
             <OrderCard key={order.id}>
               <OrderHeader>
-                <OrderId>Order #{order.id}</OrderId>
+                <div>
+                  <OrderId>Order #{order.id}</OrderId>
+                  <OrderMeta>
+                    <StatusBadge $variant="payment">
+                      Payment: {formatPaymentStatus(order.paymentStatus)}
+                    </StatusBadge>
+                    <StatusBadge $variant="shipping">
+                      Shipping: {formatShippingStatus(order.shippingStatus)}
+                    </StatusBadge>
+                  </OrderMeta>
+                </div>
                 <OrderDate>{new Date(order.createdAt).toLocaleDateString()}</OrderDate>
                 <OrderTotal>${order.totalAmount.toFixed(2)}</OrderTotal>
               </OrderHeader>

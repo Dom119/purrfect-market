@@ -10,9 +10,6 @@ import type { AuthResponse } from '../../api/auth'
 
 const navLinks = [
   { label: 'Shop All', to: '/products' },
-  { label: 'Food & Treats', to: '/products?category=Food%20%26%20Treats' },
-  { label: 'Toys', to: '/products?category=Toys' },
-  { label: 'Beds & Furniture', to: '/products?category=Beds' },
   { label: 'Blog', to: '/blog' },
   { label: 'About Us', to: '/' },
 ]

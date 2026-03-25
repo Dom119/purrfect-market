@@ -12,9 +12,12 @@ React (FE) + Spring Boot (BE) application.
 cd Frontend
 npm install
 npm run dev
+# or: npm start  (same as dev)
 ```
 
 Open [http://localhost:5173](http://localhost:5173) — landing page. Products: [http://localhost:5173/products](http://localhost:5173/products).
+
+If port 5173 is already in use, stop the other process (or another Vite instance) so the app stays on 5173 — Stripe redirects and the API proxy expect that port.
 
 ### Backend (BE) — optional
 
@@ -22,6 +25,8 @@ Open [http://localhost:5173](http://localhost:5173) — landing page. Products: 
 cd Backend
 mvn spring-boot:run
 ```
+
+Use **`spring-boot`** with a hyphen — `mvn springboot:run` will fail (wrong plugin name).
 
 API: [http://localhost:8080/api/hello](http://localhost:8080/api/hello)
 
@@ -69,3 +74,7 @@ Checkout uses Stripe in **test mode** — no real charges. Setup:
 
 4. When you click **Proceed to payment**, you’ll be redirected to Stripe Checkout.
 5. Use Stripe test cards, e.g. `4242 4242 4242 4242`, any future expiry, any CVC. See [Stripe test cards](https://stripe.com/docs/testing#cards).
+
+### Orders (payment & shipping)
+
+Each order stores **payment** status (`PAID`, `PENDING`) and **shipping** status (`PREPARING`, `SHIPPED`, `DELIVERED`). New checkouts start as **Paid** + **Preparing shipment**. To simulate progress locally, update rows in the H2 console, e.g. `UPDATE orders SET shipping_status = 'SHIPPED' WHERE id = 1;`.
