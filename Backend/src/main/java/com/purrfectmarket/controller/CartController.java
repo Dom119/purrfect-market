@@ -4,7 +4,9 @@ import com.purrfectmarket.dto.AddToCartRequest;
 import com.purrfectmarket.dto.AuthResponse;
 import com.purrfectmarket.dto.CartItemResponse;
 import com.purrfectmarket.dto.CartResponse;
+import com.purrfectmarket.dto.CheckoutCompletionResponse;
 import com.purrfectmarket.dto.UpdateCartRequest;
+import com.purrfectmarket.model.Order;
 import com.purrfectmarket.service.CartService;
 import com.purrfectmarket.service.StripeService;
 import com.stripe.exception.StripeException;
@@ -98,7 +100,8 @@ public class CartController {
     }
 
     @PostMapping("/complete-checkout")
-    public ResponseEntity<Long> completeCheckout(@RequestBody CompleteCheckoutRequest body, HttpServletRequest request) {
+    public ResponseEntity<CheckoutCompletionResponse> completeCheckout(
+            @RequestBody CompleteCheckoutRequest body, HttpServletRequest request) {
         Long userId = getUserId(request);
         String sessionId = body.sessionId();
         if (sessionId == null || sessionId.isBlank()) {
@@ -112,8 +115,14 @@ public class CartController {
             if (!String.valueOf(userId).equals(sessionUserId)) {
                 throw new IllegalStateException("Session does not match logged-in user");
             }
-            Long orderId = cartService.checkout(userId).getId();
-            return ResponseEntity.ok(orderId);
+            Order order = cartService.checkout(userId);
+            return ResponseEntity.ok(new CheckoutCompletionResponse(
+                    order.getId(),
+                    order.getTotalAmount(),
+                    order.getPaymentStatus() != null ? order.getPaymentStatus().name() : Order.PaymentStatus.PAID.name(),
+                    order.getShippingStatus() != null ? order.getShippingStatus().name() : Order.ShippingStatus.PREPARING.name(),
+                    order.getCreatedAt()
+            ));
         } catch (StripeException e) {
             throw new RuntimeException("Failed to verify payment: " + e.getMessage());
         }

@@ -21,6 +21,14 @@ public class Order {
     @Column(nullable = false)
     private OrderStatus status = OrderStatus.COMPLETED;
 
+    @Enumerated(EnumType.STRING)
+    @Column(name = "payment_status")
+    private PaymentStatus paymentStatus = PaymentStatus.PAID;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "shipping_status")
+    private ShippingStatus shippingStatus = ShippingStatus.PREPARING;
+
     @Column(name = "total_amount", nullable = false)
     private Double totalAmount;
 
@@ -35,12 +43,26 @@ public class Order {
         COMPLETED
     }
 
+    public enum PaymentStatus {
+        PAID,
+        PENDING
+    }
+
+    public enum ShippingStatus {
+        PREPARING,
+        SHIPPED,
+        DELIVERED
+    }
+
     protected Order() {
     }
 
     public Order(Long userId, Double totalAmount) {
         this.userId = userId;
         this.totalAmount = totalAmount;
+        this.paymentStatus = PaymentStatus.PAID;
+        this.shippingStatus = ShippingStatus.PREPARING;
+        this.status = OrderStatus.COMPLETED;
     }
 
     public Long getId() {
@@ -53,6 +75,14 @@ public class Order {
 
     public OrderStatus getStatus() {
         return status;
+    }
+
+    public PaymentStatus getPaymentStatus() {
+        return paymentStatus;
+    }
+
+    public ShippingStatus getShippingStatus() {
+        return shippingStatus;
     }
 
     public Double getTotalAmount() {

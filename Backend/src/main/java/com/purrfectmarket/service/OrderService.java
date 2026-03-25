@@ -46,6 +46,8 @@ public class OrderService {
                 order.getStatus().name(),
                 order.getTotalAmount(),
                 order.getCreatedAt(),
+                order.getPaymentStatus() != null ? order.getPaymentStatus().name() : Order.PaymentStatus.PAID.name(),
+                order.getShippingStatus() != null ? order.getShippingStatus().name() : Order.ShippingStatus.PREPARING.name(),
                 items
         );
     }

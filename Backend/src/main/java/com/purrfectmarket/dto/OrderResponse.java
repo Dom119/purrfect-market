@@ -8,6 +8,8 @@ public record OrderResponse(
         String status,
         Double totalAmount,
         Instant createdAt,
+        String paymentStatus,
+        String shippingStatus,
         List<OrderItemResponse> items
 ) {
 }
