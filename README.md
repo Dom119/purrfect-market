@@ -51,6 +51,14 @@ curl -X POST http://localhost:8080/api/products \
 
 - File-based at `Backend/data/purrfect.mv.db` (persists across restarts)
 - H2 Console: http://localhost:8080/h2-console (JDBC URL: `jdbc:h2:file:./data/purrfect`)
+- Newsletter signups are stored in table `newsletter_subscribers` (`email`, `subscribed_at`). Query or export from H2 when you run campaigns.
+
+### Resend (welcome email)
+
+1. Create an account at [resend.com](https://resend.com) and create an **API key** (`re_...`).
+2. Set **`RESEND_API_KEY`** (or `resend.api.key` in `application.properties`) before starting the backend. Without it, subscriptions still save; no email is sent.
+3. For quick tests, use the default **From** address `Purrfect Market <onboarding@resend.dev>` (Resend’s test sender). You can only send to **your own verified email** until you add and verify a domain in Resend, then set e.g. `resend.from=Purrfect Market <newsletter@yourdomain.com>`.
+4. Optional: `resend.reply-to=` for replies.
 
 ### Stripe Payments (test mode)
 

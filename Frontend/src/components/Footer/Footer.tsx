@@ -67,12 +67,10 @@ export function Footer() {
         </LinkColumns>
       </TopRow>
       <BottomRow>
-        <Copyright>© 2024 Purrfect Market. All rights reserved.</Copyright>
+        <Copyright>© 2026 Purrfect Market. All rights reserved.</Copyright>
         <PaymentIcons>
           <span>Visa</span>
           <span>Mastercard</span>
-          <span>Amex</span>
-          <span>PayPal</span>
         </PaymentIcons>
       </BottomRow>
     </FooterSection>

@@ -42,10 +42,12 @@ export const Description = styled.p`
 
 export const Form = styled.form`
   display: flex;
+  flex-wrap: wrap;
   gap: 0.5rem;
   flex: 1;
   max-width: 450px;
   width: 100%;
+  align-items: flex-start;
 
   @media (max-width: 768px) {
     flex-direction: column;
@@ -69,6 +71,10 @@ export const Input = styled.input`
     outline: 2px solid ${theme.colors.primary};
     outline-offset: 2px;
   }
+
+  &:disabled {
+    opacity: 0.85;
+  }
 `
 
 export const Button = styled.button`
@@ -77,11 +83,27 @@ export const Button = styled.button`
   font-weight: 600;
   color: white;
   background: ${theme.colors.primary};
+  border: none;
   border-radius: ${theme.radius.md};
   white-space: nowrap;
+  cursor: pointer;
   transition: background 0.2s;
 
-  &:hover {
+  &:hover:not(:disabled) {
     background: ${theme.colors.primaryDark};
   }
+
+  &:disabled {
+    opacity: 0.75;
+    cursor: not-allowed;
+  }
+`
+
+export const FormMessage = styled.p<{ $variant: 'success' | 'error' }>`
+  flex-basis: 100%;
+  margin: 0;
+  padding-top: 0.5rem;
+  font-size: 0.9rem;
+  line-height: 1.4;
+  color: ${(p) => (p.$variant === 'error' ? '#fecaca' : '#bbf7d0')};
 `
