@@ -11,6 +11,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.context.SecurityContextHolderFilter;
+import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
@@ -27,15 +28,19 @@ public class SecurityConfig {
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
                 .csrf(csrf -> csrf.disable()) // Session cookies work without CSRF for API; enable if needed
                 .addFilterAfter(new SessionAuthFilter(), SecurityContextHolderFilter.class)
+                // Use AntPathRequestMatcher for public routes: string requestMatchers() resolves to
+                // MvcRequestMatcher and can skip permitAll() when MVC introspection does not match
+                // (e.g. GET /api/products), falling through to authenticated() and returning 403.
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/api/auth/**").permitAll()
-                        .requestMatchers("/api/hello").permitAll()
-                        .requestMatchers("/api/newsletter/**").permitAll()
-                        .requestMatchers(HttpMethod.GET, "/api/products/*/image").permitAll()
-                        .requestMatchers("/api/products", "/api/products/**").permitAll()
-                        .requestMatchers("/api/admin/**").hasRole("MAIN_ADMIN")
-                        .requestMatchers("/h2-console/**").permitAll()
-                        .requestMatchers("/api/**").authenticated()
+                        .requestMatchers(new AntPathRequestMatcher("/api/auth/**")).permitAll()
+                        .requestMatchers(new AntPathRequestMatcher("/api/hello")).permitAll()
+                        .requestMatchers(new AntPathRequestMatcher("/api/newsletter/**")).permitAll()
+                        .requestMatchers(new AntPathRequestMatcher("/api/products/*/image", HttpMethod.GET.name())).permitAll()
+                        .requestMatchers(new AntPathRequestMatcher("/api/products")).permitAll()
+                        .requestMatchers(new AntPathRequestMatcher("/api/products/**")).permitAll()
+                        .requestMatchers(new AntPathRequestMatcher("/api/admin/**")).hasRole("MAIN_ADMIN")
+                        .requestMatchers(new AntPathRequestMatcher("/h2-console/**")).permitAll()
+                        .requestMatchers(new AntPathRequestMatcher("/api/**")).authenticated()
                 )
                 .formLogin(form -> form.disable())
                 .httpBasic(basic -> basic.disable())

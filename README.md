@@ -8,6 +8,15 @@ React (FE) + Spring Boot (BE) application.
 
 ### Frontend (FE)
 
+Vite proxies `/api` to the Spring Boot app on **port 8080**. If you only run the frontend and see **`http proxy error` / `ECONNREFUSED 127.0.0.1:8080`**, start the backend (next section) or use **both together** from the repo root:
+
+```bash
+npm install
+npm run dev
+```
+
+That runs Spring Boot and Vite in one terminal. Otherwise run the backend in one terminal, then the frontend in another:
+
 ```bash
 cd Frontend
 npm install
@@ -19,7 +28,9 @@ Open [http://localhost:5173](http://localhost:5173) — landing page. Products: 
 
 If port 5173 is already in use, stop the other process (or another Vite instance) so the app stays on 5173 — Stripe redirects and the API proxy expect that port.
 
-### Backend (BE) — optional
+### Backend (BE)
+
+Required for `/api` (auth, products, checkout, etc.) when using the dev frontend.
 
 ```bash
 cd Backend

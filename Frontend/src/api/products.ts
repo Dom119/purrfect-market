@@ -19,7 +19,13 @@ export async function fetchProducts(category?: string): Promise<Product[]> {
     : `${API_BASE}/products`
   try {
     const res = await fetch(url, { credentials: 'include' })
-    if (!res.ok) throw new Error(`Failed to fetch products (${res.status}). Is the backend running on port 8080?`)
+    if (!res.ok) {
+      const hint =
+        res.status === 403
+          ? 'Access denied (403). Restart the backend so the latest security rules are loaded.'
+          : 'Is the backend running on port 8080?'
+      throw new Error(`Failed to fetch products (${res.status}). ${hint}`)
+    }
     return res.json()
   } catch (err) {
     if (err instanceof TypeError && err.message.includes('fetch')) {
