@@ -1,0 +1,29 @@
+---
+description: Run and fix backend unit tests when changing Java/Spring logic
+globs: Backend/**
+alwaysApply: false
+---
+
+# Backend — unit tests required
+
+When you **add or change backend logic** (services, controllers, config, repositories, DTOs, security, etc.), treat the task as incomplete until **tests are green**.
+
+## What to do
+
+1. After substantive edits under `Backend/`, run unit tests from the backend module:
+
+   ```bash
+   cd Backend && mvn test
+   ```
+
+2. If any test **fails**, **fix the code or update the tests** so `mvn test` passes. Do not leave the backend in a broken-test state when the change was intentional (refactors, renames, new behavior).
+
+3. If you **add new behavior**, extend or add tests in `Backend/src/test/java/` when it is reasonable for the change (same package patterns as existing tests).
+
+## Exceptions
+
+- Trivial edits (comments only, formatting only) may skip a full run if CI/local verification is obviously unnecessary—but when in doubt, run `mvn test`.
+
+## Project note
+
+Surefire may use `-Dnet.bytebuddy.experimental=true` (see `Backend/pom.xml`) for newer JDKs; use the normal Maven command above so the same configuration applies.
