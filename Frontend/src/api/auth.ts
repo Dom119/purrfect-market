@@ -44,6 +44,15 @@ export interface RegisterRequest {
   password: string
 }
 
+export interface UpdateProfileRequest {
+  name: string
+}
+
+export interface ChangePasswordRequest {
+  currentPassword: string
+  newPassword: string
+}
+
 export const authApi = {
   login: (data: LoginRequest) =>
     fetchApi<AuthResponse>('/auth/login', {
@@ -61,4 +70,16 @@ export const authApi = {
     fetchApi<void>('/auth/logout', { method: 'POST' }),
 
   me: () => fetchApi<AuthResponse>('/auth/me'),
+
+  updateProfile: (data: UpdateProfileRequest) =>
+    fetchApi<AuthResponse>('/auth/profile', {
+      method: 'PATCH',
+      body: JSON.stringify(data),
+    }),
+
+  changePassword: (data: ChangePasswordRequest) =>
+    fetchApi<AuthResponse>('/auth/change-password', {
+      method: 'POST',
+      body: JSON.stringify(data),
+    }),
 }

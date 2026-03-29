@@ -1,8 +1,7 @@
 import { useEffect, useState } from 'react'
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import { fetchProducts, type Product } from '../../api/products'
 import { ProductCard } from '../ProductCard/ProductCard'
-import { ProductDetailModal } from '../ProductDetailModal/ProductDetailModal'
 import { useFavorites } from '../../context/FavoritesContext'
 import { useCart } from '../../context/CartContext'
 import { Section, SectionHeader, Title, ViewAll, Grid } from './PurrfectPicks.styles'
@@ -13,8 +12,8 @@ interface PurrfectPicksProps {
 }
 
 export function PurrfectPicks({ user, onLoginClick }: PurrfectPicksProps) {
+  const navigate = useNavigate()
   const [products, setProducts] = useState<Product[]>([])
-  const [selectedProduct, setSelectedProduct] = useState<Product | null>(null)
   const favorites = useFavorites()
   const cart = useCart()
 
@@ -34,7 +33,7 @@ export function PurrfectPicks({ user, onLoginClick }: PurrfectPicksProps) {
             key={product.id}
             product={product}
             isFavorite={favorites?.favoriteIds.has(product.id)}
-            onProductClick={() => setSelectedProduct(product)}
+            onProductClick={() => navigate(`/products/${product.id}`)}
             onFavoriteClick={() => {
               if (!user) {
                 onLoginClick?.()
@@ -49,29 +48,6 @@ export function PurrfectPicks({ user, onLoginClick }: PurrfectPicksProps) {
           />
         ))}
       </Grid>
-
-      <ProductDetailModal
-        product={selectedProduct}
-        isOpen={!!selectedProduct}
-        onClose={() => setSelectedProduct(null)}
-        isFavorite={selectedProduct ? favorites?.favoriteIds.has(selectedProduct.id) : false}
-        onFavoriteClick={
-          selectedProduct
-            ? () => {
-                if (!user) onLoginClick?.()
-                else favorites?.toggleFavorite(selectedProduct.id)
-              }
-            : undefined
-        }
-        onAddClick={
-          selectedProduct
-            ? () => {
-                if (!user) onLoginClick?.()
-                else cart?.addToCart(selectedProduct.id)
-              }
-            : undefined
-        }
-      />
     </Section>
   )
 }

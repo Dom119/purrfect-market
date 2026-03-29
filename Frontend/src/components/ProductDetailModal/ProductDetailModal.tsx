@@ -20,6 +20,8 @@ import type { Product } from '../ProductCard/ProductCard'
 interface ProductDetailModalProps {
   product: Product | null
   isOpen: boolean
+  /** When opening by URL, show loading until product is fetched */
+  loading?: boolean
   onClose: () => void
   isFavorite?: boolean
   onFavoriteClick?: () => void
@@ -29,6 +31,7 @@ interface ProductDetailModalProps {
 export function ProductDetailModal({
   product,
   isOpen,
+  loading = false,
   onClose,
   isFavorite,
   onFavoriteClick,
@@ -48,7 +51,22 @@ export function ProductDetailModal({
     }
   }, [isOpen, onClose])
 
-  if (!isOpen || !product) return null
+  if (!isOpen) return null
+
+  if (loading || !product) {
+    return (
+      <Overlay onClick={onClose} role="dialog" aria-modal="true" aria-busy="true" aria-labelledby="product-detail-title">
+        <Modal onClick={(e) => e.stopPropagation()}>
+          <CloseButton onClick={onClose} aria-label="Close">
+            <CloseIcon />
+          </CloseButton>
+          <Content>
+            <ProductName id="product-detail-title">Loading product…</ProductName>
+          </Content>
+        </Modal>
+      </Overlay>
+    )
+  }
 
   return (
     <Overlay onClick={onClose} role="dialog" aria-modal="true" aria-labelledby="product-detail-title">

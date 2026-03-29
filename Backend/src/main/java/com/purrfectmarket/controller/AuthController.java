@@ -1,8 +1,10 @@
 package com.purrfectmarket.controller;
 
 import com.purrfectmarket.dto.AuthResponse;
+import com.purrfectmarket.dto.ChangePasswordRequest;
 import com.purrfectmarket.dto.LoginRequest;
 import com.purrfectmarket.dto.RegisterRequest;
+import com.purrfectmarket.dto.UpdateProfileRequest;
 import com.purrfectmarket.repository.UserRepository;
 import com.purrfectmarket.service.AuthService;
 import jakarta.servlet.http.HttpServletRequest;
@@ -61,5 +63,37 @@ public class AuthController {
         AuthResponse fresh = authService.refreshAuthResponse(cached.id());
         session.setAttribute("user", fresh);
         return ResponseEntity.ok(fresh);
+    }
+
+    @PatchMapping("/profile")
+    public ResponseEntity<AuthResponse> updateProfile(
+            @RequestBody UpdateProfileRequest body,
+            HttpServletRequest httpRequest) {
+        Long userId = requireUserId(httpRequest);
+        AuthResponse updated = authService.updateProfile(userId, body);
+        httpRequest.getSession().setAttribute("user", updated);
+        return ResponseEntity.ok(updated);
+    }
+
+    @PostMapping("/change-password")
+    public ResponseEntity<AuthResponse> changePassword(
+            @RequestBody ChangePasswordRequest body,
+            HttpServletRequest httpRequest) {
+        Long userId = requireUserId(httpRequest);
+        AuthResponse updated = authService.changePassword(userId, body);
+        httpRequest.getSession().setAttribute("user", updated);
+        return ResponseEntity.ok(updated);
+    }
+
+    private Long requireUserId(HttpServletRequest request) {
+        HttpSession session = request.getSession(false);
+        if (session == null || session.getAttribute("user") == null) {
+            throw new IllegalStateException("You must be signed in");
+        }
+        AuthResponse cached = (AuthResponse) session.getAttribute("user");
+        if (cached.id() == null || userRepository.findById(cached.id()).isEmpty()) {
+            throw new IllegalStateException("You must be signed in");
+        }
+        return cached.id();
     }
 }

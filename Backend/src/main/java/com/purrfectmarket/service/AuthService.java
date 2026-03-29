@@ -1,8 +1,10 @@
 package com.purrfectmarket.service;
 
 import com.purrfectmarket.dto.AuthResponse;
+import com.purrfectmarket.dto.ChangePasswordRequest;
 import com.purrfectmarket.dto.LoginRequest;
 import com.purrfectmarket.dto.RegisterRequest;
+import com.purrfectmarket.dto.UpdateProfileRequest;
 import com.purrfectmarket.model.User;
 import com.purrfectmarket.model.UserGroup;
 import com.purrfectmarket.repository.UserRepository;
@@ -69,5 +71,33 @@ public class AuthService {
 
     public void logout() {
         SecurityContextHolder.clearContext();
+    }
+
+    public AuthResponse updateProfile(Long userId, UpdateProfileRequest request) {
+        if (request.name() == null || request.name().isBlank()) {
+            throw new IllegalArgumentException("Name is required");
+        }
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new IllegalArgumentException("User not found"));
+        user.setName(request.name().trim());
+        userRepository.save(user);
+        return refreshAuthResponse(userId);
+    }
+
+    public AuthResponse changePassword(Long userId, ChangePasswordRequest request) {
+        if (request.newPassword() == null || request.newPassword().length() < 8) {
+            throw new IllegalArgumentException("New password must be at least 8 characters");
+        }
+        if (request.currentPassword() == null || request.currentPassword().isEmpty()) {
+            throw new IllegalArgumentException("Current password is required");
+        }
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new IllegalArgumentException("User not found"));
+        if (!passwordEncoder.matches(request.currentPassword(), user.getPasswordHash())) {
+            throw new IllegalArgumentException("Current password is incorrect");
+        }
+        user.setPasswordHash(passwordEncoder.encode(request.newPassword()));
+        userRepository.save(user);
+        return refreshAuthResponse(userId);
     }
 }

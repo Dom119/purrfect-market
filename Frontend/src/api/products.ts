@@ -13,6 +13,21 @@ export interface Product {
   inStock?: boolean
 }
 
+export async function fetchProduct(id: number): Promise<Product> {
+  const res = await fetch(`${API_BASE}/products/${id}`, { credentials: 'include' })
+  if (res.status === 404) {
+    throw new Error('Product not found')
+  }
+  if (!res.ok) {
+    const hint =
+      res.status === 403
+        ? 'Access denied (403). Restart the backend so the latest security rules are loaded.'
+        : 'Is the backend running on port 8080?'
+    throw new Error(`Failed to load product (${res.status}). ${hint}`)
+  }
+  return res.json()
+}
+
 export async function fetchProducts(category?: string): Promise<Product[]> {
   const url = category
     ? `${API_BASE}/products?category=${encodeURIComponent(category)}`

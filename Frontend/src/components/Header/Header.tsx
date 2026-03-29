@@ -9,11 +9,19 @@ import { useCart } from '../../context/CartContext'
 import type { AuthResponse } from '../../api/auth'
 import { isMainAdmin } from '../../api/auth'
 
-const navLinks = [
-  { label: 'Shop All', to: '/products' },
-  { label: 'Blog', to: '/blog' },
-  { label: 'About Us', to: '/' },
-]
+function buildNavLinks(user: AuthResponse | null) {
+  const links: { label: string; to: string }[] = [
+    { label: 'Shop All', to: '/products' },
+  ]
+  if (user) {
+    links.push({ label: 'Orders', to: '/orders' })
+  }
+  links.push(
+    { label: 'Blog', to: '/blog' },
+    { label: 'About', to: '/about' }
+  )
+  return links
+}
 
 interface HeaderProps {
   user: AuthResponse | null
@@ -52,7 +60,7 @@ export function Header({ user, onLoginSuccess, onLogout, isAuthModalOpen = false
           PurrfectMarket
         </Logo>
         <Nav>
-          {navLinks.map((link) => (
+          {buildNavLinks(user).map((link) => (
             <NavLink key={link.label} as={Link} to={link.to}>
               {link.label}
             </NavLink>
@@ -77,7 +85,9 @@ export function Header({ user, onLoginSuccess, onLogout, isAuthModalOpen = false
           </IconButton>
           {user ? (
             <>
-              <UserName>Hi, {user.name}</UserName>
+              <UserName as={Link} to="/account" title="Account settings">
+                Hi, {user.name}
+              </UserName>
               <IconButton
                 aria-label="Logout"
                 title="Logout"

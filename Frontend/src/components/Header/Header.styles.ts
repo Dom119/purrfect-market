@@ -67,6 +67,11 @@ export const UserName = styled.span`
   font-weight: 500;
   color: ${theme.colors.charcoal};
   margin-right: 0.25rem;
+  text-decoration: none;
+
+  &:hover {
+    color: ${theme.colors.primary};
+  }
 
   @media (max-width: 600px) {
     display: none;

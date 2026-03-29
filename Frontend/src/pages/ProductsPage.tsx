@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react'
-import { useSearchParams } from 'react-router-dom'
-import { fetchProducts, type Product } from '../api/products'
+import { useNavigate, useParams, useSearchParams } from 'react-router-dom'
+import { fetchProduct, fetchProducts, type Product } from '../api/products'
 import { ProductCard } from '../components/ProductCard/ProductCard'
 import { ProductDetailModal } from '../components/ProductDetailModal/ProductDetailModal'
 import { useFavorites } from '../context/FavoritesContext'
@@ -27,7 +27,9 @@ interface ProductsPageProps {
 }
 
 export function ProductsPage({ user, onLoginClick }: ProductsPageProps) {
-  const [searchParams] = useSearchParams()
+  const navigate = useNavigate()
+  const { productId } = useParams()
+  const [searchParams, setSearchParams] = useSearchParams()
   const categoryFromUrl = searchParams.get('category')
   const initialCategory = categoryFromUrl && CATEGORIES.includes(categoryFromUrl)
     ? categoryFromUrl
@@ -39,6 +41,7 @@ export function ProductsPage({ user, onLoginClick }: ProductsPageProps) {
   const [selectedCategory, setSelectedCategory] = useState(initialCategory)
   const [searchQuery, setSearchQuery] = useState('')
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null)
+  const [detailLoading, setDetailLoading] = useState(false)
   const favorites = useFavorites()
   const cart = useCart()
 
@@ -50,6 +53,37 @@ export function ProductsPage({ user, onLoginClick }: ProductsPageProps) {
       setSelectedCategory(category)
     }
   }, [categoryFromUrl])
+
+  useEffect(() => {
+    if (!productId) {
+      setSelectedProduct(null)
+      setDetailLoading(false)
+      return
+    }
+    const id = Number(productId)
+    if (Number.isNaN(id)) {
+      navigate({ pathname: '/products', search: window.location.search }, { replace: true })
+      return
+    }
+    let cancelled = false
+    setDetailLoading(true)
+    fetchProduct(id)
+      .then((p) => {
+        if (!cancelled) {
+          setSelectedProduct(p)
+          setDetailLoading(false)
+        }
+      })
+      .catch(() => {
+        if (!cancelled) {
+          setDetailLoading(false)
+          navigate({ pathname: '/products', search: window.location.search }, { replace: true })
+        }
+      })
+    return () => {
+      cancelled = true
+    }
+  }, [productId, navigate])
 
   useEffect(() => {
     const category = selectedCategory === 'All' ? undefined : selectedCategory
@@ -65,6 +99,29 @@ export function ProductsPage({ user, onLoginClick }: ProductsPageProps) {
     return products.filter((p) => p.name.toLowerCase().includes(q))
   }, [products, searchQuery])
 
+  const setCategory = (cat: string) => {
+    setSelectedCategory(cat)
+    if (cat === 'All') {
+      setSearchParams({}, { replace: true })
+    } else {
+      setSearchParams({ category: cat }, { replace: true })
+    }
+  }
+
+  const openProduct = (product: Product) => {
+    navigate({
+      pathname: `/products/${product.id}`,
+      search: searchParams.toString() ? `?${searchParams.toString()}` : '',
+    })
+  }
+
+  const handleCloseModal = () => {
+    setSelectedProduct(null)
+    navigate({
+      pathname: '/products',
+      search: searchParams.toString() ? `?${searchParams.toString()}` : '',
+    })
+  }
 
   if (loading) {
     return (
@@ -111,7 +168,7 @@ export function ProductsPage({ user, onLoginClick }: ProductsPageProps) {
           <FilterButton
             key={cat}
             $active={selectedCategory === cat}
-            onClick={() => setSelectedCategory(cat)}
+            onClick={() => setCategory(cat)}
           >
             {cat}
           </FilterButton>
@@ -124,7 +181,7 @@ export function ProductsPage({ user, onLoginClick }: ProductsPageProps) {
             key={product.id}
             product={product}
             isFavorite={favorites?.favoriteIds.has(product.id)}
-            onProductClick={() => setSelectedProduct(product)}
+            onProductClick={() => openProduct(product)}
             onFavoriteClick={() => {
               if (!user) {
                 onLoginClick?.()
@@ -142,8 +199,9 @@ export function ProductsPage({ user, onLoginClick }: ProductsPageProps) {
 
       <ProductDetailModal
         product={selectedProduct}
-        isOpen={!!selectedProduct}
-        onClose={() => setSelectedProduct(null)}
+        isOpen={!!productId}
+        loading={!!productId && detailLoading}
+        onClose={handleCloseModal}
         isFavorite={selectedProduct ? favorites?.favoriteIds.has(selectedProduct.id) : false}
         onFavoriteClick={
           selectedProduct

@@ -7,6 +7,15 @@ import { ProductsPage } from './pages/ProductsPage'
 import { FavoritesPage } from './pages/FavoritesPage'
 import { CartPage } from './pages/CartPage'
 import { BlogPage } from './pages/BlogPage'
+import { AboutPage } from './pages/AboutPage'
+import { PrivacyPage } from './pages/PrivacyPage'
+import { TermsPage } from './pages/TermsPage'
+import { ShippingPage } from './pages/ShippingPage'
+import { ContactPage } from './pages/ContactPage'
+import { FaqPage } from './pages/FaqPage'
+import { OrdersPage } from './pages/OrdersPage'
+import { AccountPage } from './pages/AccountPage'
+import { NotFoundPage } from './pages/NotFoundPage'
 import { AdminLayout } from './pages/admin/AdminLayout'
 import { AdminOrdersPage } from './pages/admin/AdminOrdersPage'
 import { AdminProductsPage } from './pages/admin/AdminProductsPage'
@@ -23,10 +32,28 @@ const PAGE_TITLES: Record<string, string> = {
   '/favorites': 'My Favorites | Purrfect Market',
   '/cart': 'Shopping Cart | Purrfect Market',
   '/blog': 'Blog | Purrfect Market',
+  '/about': 'About | Purrfect Market',
+  '/privacy': 'Privacy Policy | Purrfect Market',
+  '/terms': 'Terms of Service | Purrfect Market',
+  '/shipping': 'Shipping & Returns | Purrfect Market',
+  '/contact': 'Contact | Purrfect Market',
+  '/faq': 'FAQ | Purrfect Market',
+  '/orders': 'My Orders | Purrfect Market',
+  '/account': 'Account | Purrfect Market',
   '/admin/orders': 'Admin — Orders | Purrfect Market',
   '/admin/products': 'Admin — Products | Purrfect Market',
   '/admin/newsletter': 'Admin — Newsletter | Purrfect Market',
   '/admin/users': 'Admin — Users | Purrfect Market',
+}
+
+function resolveTitle(pathname: string): string {
+  if (pathname.startsWith('/products/') && pathname !== '/products') {
+    return 'Product | Purrfect Market'
+  }
+  return (
+    PAGE_TITLES[pathname] ??
+    (pathname.startsWith('/admin') ? 'Admin | Purrfect Market' : 'Purrfect Market')
+  )
 }
 
 function AppContent() {
@@ -44,17 +71,16 @@ function AppContent() {
   }, [])
 
   useEffect(() => {
-    const basePath = location.pathname
-    document.title =
-      PAGE_TITLES[basePath] ??
-      (basePath.startsWith('/admin') ? 'Admin | Purrfect Market' : 'Purrfect Market')
+    document.title = resolveTitle(location.pathname)
   }, [location.pathname])
+
+  const openAuth = () => setIsAuthModalOpen(true)
 
   return (
     <FavoritesProvider user={user}>
       <CartProvider user={user}>
-      <GlobalStyles />
-      <Header
+        <GlobalStyles />
+        <Header
           user={user}
           onLoginSuccess={(u) => setUser(u)}
           onLogout={() => setUser(null)}
@@ -64,46 +90,44 @@ function AppContent() {
         <Routes>
           <Route
             path="/"
-            element={
-              <LandingPage
-                user={user}
-                onLoginClick={() => setIsAuthModalOpen(true)}
-              />
-            }
+            element={<LandingPage user={user} onLoginClick={openAuth} />}
+          />
+          <Route
+            path="/products/:productId"
+            element={<ProductsPage user={user} onLoginClick={openAuth} />}
           />
           <Route
             path="/products"
-            element={
-              <ProductsPage
-                user={user}
-                onLoginClick={() => setIsAuthModalOpen(true)}
-              />
-            }
+            element={<ProductsPage user={user} onLoginClick={openAuth} />}
           />
           <Route
             path="/favorites"
-            element={
-              <FavoritesPage
-                user={user}
-                onLoginClick={() => setIsAuthModalOpen(true)}
-              />
-            }
+            element={<FavoritesPage user={user} onLoginClick={openAuth} />}
           />
           <Route
             path="/cart"
-            element={
-              <CartPage
-                user={user}
-                onLoginClick={() => setIsAuthModalOpen(true)}
-              />
-            }
+            element={<CartPage user={user} onLoginClick={openAuth} />}
           />
           <Route path="/blog" element={<BlogPage />} />
+          <Route path="/about" element={<AboutPage />} />
+          <Route path="/privacy" element={<PrivacyPage />} />
+          <Route path="/terms" element={<TermsPage />} />
+          <Route path="/shipping" element={<ShippingPage />} />
+          <Route path="/contact" element={<ContactPage />} />
+          <Route path="/faq" element={<FaqPage />} />
+          <Route
+            path="/orders"
+            element={<OrdersPage user={user} onLoginClick={openAuth} />}
+          />
+          <Route
+            path="/account"
+            element={
+              <AccountPage user={user} onUserChange={setUser} onLoginClick={openAuth} />
+            }
+          />
           <Route
             path="/admin"
-            element={
-              <AdminLayout user={user} authReady={authReady} onUserChange={setUser} />
-            }
+            element={<AdminLayout user={user} authReady={authReady} onUserChange={setUser} />}
           >
             <Route index element={<Navigate to="/admin/orders" replace />} />
             <Route path="orders" element={<AdminOrdersPage />} />
@@ -111,9 +135,10 @@ function AppContent() {
             <Route path="newsletter" element={<AdminNewsletterPage />} />
             <Route path="users" element={<AdminUsersPage />} />
           </Route>
+          <Route path="*" element={<NotFoundPage />} />
         </Routes>
       </CartProvider>
-      </FavoritesProvider>
+    </FavoritesProvider>
   )
 }
 
