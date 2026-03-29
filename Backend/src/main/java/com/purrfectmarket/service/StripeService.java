@@ -17,7 +17,7 @@ public class StripeService {
 
     public String createCheckoutSession(Long userId, long amountCents) throws StripeException {
         if (stripeSecretKey == null || stripeSecretKey.isBlank()) {
-            throw new IllegalStateException("Stripe is not configured. Set STRIPE_SECRET_KEY or stripe.api.key");
+            throw new IllegalStateException("Stripe is not configured. Set STRIPE_API_KEY or stripe.api.key");
         }
 
         SessionCreateParams params = SessionCreateParams.builder()

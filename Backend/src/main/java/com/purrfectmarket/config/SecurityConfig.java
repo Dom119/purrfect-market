@@ -1,5 +1,6 @@
 package com.purrfectmarket.config;
 
+import com.purrfectmarket.repository.UserRepository;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
@@ -23,15 +24,21 @@ import java.util.List;
 public class SecurityConfig {
 
     @Bean
-    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+    public SessionAuthFilter sessionAuthFilter(UserRepository userRepository) {
+        return new SessionAuthFilter(userRepository);
+    }
+
+    @Bean
+    public SecurityFilterChain securityFilterChain(HttpSecurity http, SessionAuthFilter sessionAuthFilter) throws Exception {
         http
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
                 .csrf(csrf -> csrf.disable()) // Session cookies work without CSRF for API; enable if needed
-                .addFilterAfter(new SessionAuthFilter(), SecurityContextHolderFilter.class)
+                .addFilterAfter(sessionAuthFilter, SecurityContextHolderFilter.class)
                 // Use AntPathRequestMatcher for public routes: string requestMatchers() resolves to
                 // MvcRequestMatcher and can skip permitAll() when MVC introspection does not match
                 // (e.g. GET /api/products), falling through to authenticated() and returning 403.
                 .authorizeHttpRequests(auth -> auth
+                        .requestMatchers(new AntPathRequestMatcher("/api/**", HttpMethod.OPTIONS.name())).permitAll()
                         .requestMatchers(new AntPathRequestMatcher("/api/auth/**")).permitAll()
                         .requestMatchers(new AntPathRequestMatcher("/api/hello")).permitAll()
                         .requestMatchers(new AntPathRequestMatcher("/api/newsletter/**")).permitAll()

@@ -31,11 +31,16 @@ const PAGE_TITLES: Record<string, string> = {
 
 function AppContent() {
   const [user, setUser] = useState<AuthResponse | null>(null)
+  const [authReady, setAuthReady] = useState(false)
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false)
   const location = useLocation()
 
   useEffect(() => {
-    authApi.me().then(setUser).catch(() => setUser(null))
+    authApi
+      .me()
+      .then(setUser)
+      .catch(() => setUser(null))
+      .finally(() => setAuthReady(true))
   }, [])
 
   useEffect(() => {
@@ -94,7 +99,12 @@ function AppContent() {
             }
           />
           <Route path="/blog" element={<BlogPage />} />
-          <Route path="/admin" element={<AdminLayout user={user} onUserChange={setUser} />}>
+          <Route
+            path="/admin"
+            element={
+              <AdminLayout user={user} authReady={authReady} onUserChange={setUser} />
+            }
+          >
             <Route index element={<Navigate to="/admin/orders" replace />} />
             <Route path="orders" element={<AdminOrdersPage />} />
             <Route path="products" element={<AdminProductsPage />} />

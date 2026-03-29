@@ -1,4 +1,7 @@
 package com.purrfectmarket.dto;
 
-public record AuthResponse(Long id, String email, String name, String userGroup) {
+import java.io.Serializable;
+
+public record AuthResponse(Long id, String email, String name, String userGroup) implements Serializable {
+    private static final long serialVersionUID = 1L;
 }

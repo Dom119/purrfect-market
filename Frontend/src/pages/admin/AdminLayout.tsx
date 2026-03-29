@@ -11,6 +11,8 @@ import {
 
 interface AdminLayoutProps {
   user: AuthResponse | null
+  /** False until `/auth/me` finishes so refresh on `/admin/*` does not redirect to home. */
+  authReady: boolean
   onUserChange?: (user: AuthResponse | null) => void
 }
 
@@ -19,7 +21,19 @@ export type AdminOutletContext = {
   onUserChange?: (user: AuthResponse | null) => void
 }
 
-export function AdminLayout({ user, onUserChange }: AdminLayoutProps) {
+export function AdminLayout({ user, authReady, onUserChange }: AdminLayoutProps) {
+  if (!authReady) {
+    return (
+      <AdminShell>
+        <AdminSidebar>
+          <AdminBrand to="/admin/orders">Admin</AdminBrand>
+        </AdminSidebar>
+        <AdminMain>
+          <p style={{ color: '#6b7280' }}>Loading…</p>
+        </AdminMain>
+      </AdminShell>
+    )
+  }
   if (!user) {
     return <Navigate to="/" replace />
   }

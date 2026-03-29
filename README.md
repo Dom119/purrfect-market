@@ -1,17 +1,23 @@
 # Purrfect Market
 
-React (FE) + Spring Boot (BE) application.
+React (Vite) frontend and Spring Boot 3.4 backend (Java 21). REST API between the two.
 
-![Purrfect Market homepage](docs/screenshot.png)
+## Prerequisites
+
+- **Node.js** (npm) — for the frontend and the root `dev` script
+- **Java 21** and **Maven** — for the backend (`mvn` on your `PATH`)
 
 ## Run in browser
 
 ### Frontend (FE)
 
-Vite proxies `/api` to the Spring Boot app on **port 8080**. If you only run the frontend and see **`http proxy error` / `ECONNREFUSED 127.0.0.1:8080`**, start the backend (next section) or use **both together** from the repo root:
+Vite proxies `/api` to the Spring Boot app on **port 8080**. If you only run the frontend and see **`http proxy error` / `ECONNREFUSED 127.0.0.1:8080`**, start the backend (next section) or run **both together** from the repo root.
+
+**First time:** install dependencies at the repo root (for `concurrently`) and in `Frontend/` (for Vite and React):
 
 ```bash
 npm install
+npm install --prefix Frontend
 npm run dev
 ```
 
@@ -53,16 +59,32 @@ Test user: `test@purrfect.com` / `password`
 ### Main admin
 
 - On first startup, if no user exists with **quydung119@gmail.com**, one is created with password **`PurrfectAdmin!2025`** and role **MAIN_ADMIN**. If that email already exists (e.g. you registered first), the next run promotes it to **MAIN_ADMIN**.
-- After logging in as main admin, open **Admin** in the header for orders, products/inventory, newsletter tools, and **Users** (promote/demote Main Admin vs User; at least one Main Admin must remain).
+- After logging in as main admin, open **Admin** in the header (or go to [http://localhost:5173/admin](http://localhost:5173/admin)) for orders, products/inventory, newsletter tools, and **Users** (promote/demote Main Admin vs User; at least one Main Admin must remain).
 - Admin APIs are under `/api/admin/**` (403 for everyone else). Change the default admin password after first login if others can access your machine.
 
-### Add Product (API)
+### Add product (API)
+
+Products are created by **main admins** via `POST /api/admin/products` as **multipart/form-data** (not JSON). The public `GET /api/products` API is read-only.
+
+Log in to obtain a session cookie, then create a product (example uses the default main-admin account from [Main admin](#main-admin)):
 
 ```bash
-curl -X POST http://localhost:8080/api/products \
+curl -c cookies.txt -X POST http://localhost:8080/api/auth/login \
   -H "Content-Type: application/json" \
-  -d '{"name":"Product Name","description":"Description","price":19.99,"category":"Toys","imageUrl":"https://example.com/image.jpg","rating":4.8,"reviewCount":50,"badge":null}'
+  -d '{"email":"quydung119@gmail.com","password":"PurrfectAdmin!2025"}'
+
+curl -b cookies.txt -X POST http://localhost:8080/api/admin/products \
+  -F "name=Product Name" \
+  -F "description=Description" \
+  -F "price=19.99" \
+  -F "category=Toys" \
+  -F "inventory=10" \
+  -F "imageUrl=https://example.com/image.jpg" \
+  -F "rating=4.8" \
+  -F "reviewCount=50"
 ```
+
+Optional fields: `badge`, `inStock`, and file part `image` (upload). Prefer **Admin → Products** in the UI for uploads and inventory.
 
 ### Database (H2)
 
@@ -83,7 +105,7 @@ Checkout uses Stripe in **test mode** — no real charges. Setup:
 
 1. Create a free Stripe account at [stripe.com](https://stripe.com).
 2. In the [Stripe Dashboard](https://dashboard.stripe.com), enable **Developers → API keys** and copy the **Secret key** (starts with `sk_test_`).
-3. Set the key before starting the backend:
+3. Set the key before starting the backend. Spring Boot maps the property `stripe.api.key` to the environment variable **`STRIPE_API_KEY`** (or set it in config):
 
    ```bash
    cd Backend
