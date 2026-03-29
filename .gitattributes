@@ -1,0 +1,3 @@
+# Exclude reusable UI components from GitHub language statistics (Linguist).
+# Application/routing logic elsewhere under Frontend/ remains counted.
+Frontend/src/components/** linguist-vendored
