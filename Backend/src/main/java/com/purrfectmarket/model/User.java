@@ -2,6 +2,8 @@ package com.purrfectmarket.model;
 
 import jakarta.persistence.*;
 
+import java.time.Instant;
+
 @Entity
 @Table(name = "users", indexes = @Index(unique = true, columnList = "email"))
 public class User {
@@ -22,6 +24,9 @@ public class User {
     @Enumerated(EnumType.STRING)
     @Column(name = "user_group")
     private UserGroup userGroup = UserGroup.USER;
+
+    @Column(name = "created_at", updatable = false)
+    private Instant createdAt = Instant.now();
 
     protected User() {
     }
@@ -63,5 +68,9 @@ public class User {
 
     public void setPasswordHash(String passwordHash) {
         this.passwordHash = passwordHash;
+    }
+
+    public Instant getCreatedAt() {
+        return createdAt;
     }
 }

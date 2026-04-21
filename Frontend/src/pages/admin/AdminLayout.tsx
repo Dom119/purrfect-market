@@ -26,7 +26,7 @@ export function AdminLayout({ user, authReady, onUserChange }: AdminLayoutProps)
     return (
       <AdminShell>
         <AdminSidebar>
-          <AdminBrand to="/admin/orders">Admin</AdminBrand>
+          <AdminBrand to="/admin/dashboard">Admin</AdminBrand>
         </AdminSidebar>
         <AdminMain>
           <p style={{ color: '#6b7280' }}>Loading…</p>
@@ -44,10 +44,9 @@ export function AdminLayout({ user, authReady, onUserChange }: AdminLayoutProps)
   return (
     <AdminShell>
       <AdminSidebar>
-        <AdminBrand to="/admin/orders">Admin</AdminBrand>
-        <SideNavLink to="/admin/orders" end>
-          Orders
-        </SideNavLink>
+        <AdminBrand to="/admin/dashboard">Admin</AdminBrand>
+        <SideNavLink to="/admin/dashboard">Dashboard</SideNavLink>
+        <SideNavLink to="/admin/orders">Orders</SideNavLink>
         <SideNavLink to="/admin/products">Products</SideNavLink>
         <SideNavLink to="/admin/newsletter">Newsletter</SideNavLink>
         <SideNavLink to="/admin/users">Users</SideNavLink>

@@ -68,8 +68,28 @@ export interface AdminUser {
   userGroup: string
 }
 
+export interface AdminStatsTopProduct {
+  productName: string
+  unitsSold: number
+}
+
+export interface AdminStats {
+  totalRevenue: number
+  totalOrders: number
+  newUsersThisMonth: number
+  topProducts: AdminStatsTopProduct[]
+}
+
 export const adminApi = {
+  getStats: () => adminFetch<AdminStats>('/admin/stats'),
+
   getOrders: () => adminFetch<AdminOrder[]>('/admin/orders'),
+
+  exportOrdersCsv: async () => {
+    const res = await fetch('/api/admin/orders/export.csv', { credentials: 'include' })
+    if (!res.ok) throw new Error('Export failed')
+    return res.blob()
+  },
 
   getProducts: () => adminFetch<AdminProduct[]>('/admin/products'),
 

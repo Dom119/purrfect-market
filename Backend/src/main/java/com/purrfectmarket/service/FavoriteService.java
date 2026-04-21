@@ -66,7 +66,8 @@ public class FavoriteService {
                 p.getRating(),
                 p.getReviewCount(),
                 p.getBadge(),
-                p.getInStock() != null ? p.getInStock() : true
+                p.getInStock() != null ? p.getInStock() : true,
+                p.getInventoryQuantity()
         );
     }
 }

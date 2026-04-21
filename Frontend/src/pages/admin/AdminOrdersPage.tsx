@@ -1,5 +1,14 @@
 import { useEffect, useMemo, useState, type ChangeEvent } from 'react'
 import { adminApi, type AdminOrder } from '../../api/admin'
+
+function downloadBlob(blob: Blob, filename: string) {
+  const url = URL.createObjectURL(blob)
+  const a = document.createElement('a')
+  a.href = url
+  a.download = filename
+  a.click()
+  URL.revokeObjectURL(url)
+}
 import {
   PageTitle,
   PageHint,
@@ -50,6 +59,20 @@ export function AdminOrdersPage() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [filters, setFilters] = useState<OrderFilters>(emptyFilters)
+  const [exporting, setExporting] = useState(false)
+
+  const handleExport = async () => {
+    setExporting(true)
+    try {
+      const blob = await adminApi.exportOrdersCsv()
+      const date = new Date().toISOString().slice(0, 10)
+      downloadBlob(blob, `orders-${date}.csv`)
+    } catch {
+      setError('Export failed')
+    } finally {
+      setExporting(false)
+    }
+  }
 
   useEffect(() => {
     adminApi
@@ -135,6 +158,9 @@ export function AdminOrdersPage() {
             Clear filters
           </BtnSecondary>
         )}
+        <BtnSecondary type="button" onClick={handleExport} disabled={exporting} style={{ marginLeft: '0.75rem' }}>
+          {exporting ? 'Exporting…' : '⬇ Export CSV'}
+        </BtnSecondary>
       </FilterMeta>
       <TableWrap>
         <Table>

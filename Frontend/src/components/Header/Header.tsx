@@ -8,6 +8,7 @@ import { useFavorites } from '../../context/FavoritesContext'
 import { useCart } from '../../context/CartContext'
 import type { AuthResponse } from '../../api/auth'
 import { isMainAdmin } from '../../api/auth'
+import { ThemeToggle } from '../ThemeToggle/ThemeToggle'
 
 function buildNavLinks(user: AuthResponse | null) {
   const links: { label: string; to: string }[] = [
@@ -109,6 +110,7 @@ export function Header({ user, onLoginSuccess, onLogout, isAuthModalOpen = false
               <UserIcon />
             </IconButton>
           )}
+          <ThemeToggle />
           <IconButton as={Link} to="/cart" aria-label="Cart" $showTooltip data-tooltip="Cart">
             <BagIcon />
             {cartCount > 0 && <Badge>{cartCount}</Badge>}

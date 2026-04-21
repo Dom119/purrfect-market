@@ -2,7 +2,7 @@ import styled from 'styled-components'
 import { theme } from '../../theme'
 
 export const FooterSection = styled.footer`
-  background: ${theme.colors.navy};
+  background: ${theme.colors.alwaysDark};
   color: white;
   padding: 4rem 1.5rem 2rem;
 `

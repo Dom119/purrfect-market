@@ -8,6 +8,8 @@ import {
   Category,
   Price,
   AddBtn,
+  LowStockLabel,
+  OutOfStockLabel,
 } from './ProductCard.styles'
 
 export interface Product {
@@ -21,6 +23,7 @@ export interface Product {
   reviewCount: number | null
   badge: string | null
   inStock?: boolean
+  inventoryQuantity?: number
 }
 
 interface ProductCardProps {
@@ -88,7 +91,18 @@ export function ProductCard({ product, isFavorite, onFavoriteClick, onAddClick, 
       <ProductName>{product.name}</ProductName>
       <Category>{product.category}</Category>
       <Price>${product.price.toFixed(2)}</Price>
-      <AddBtn type="button" onClick={handleAddClick}>
+      {product.inStock === false
+        ? <OutOfStockLabel>Out of stock</OutOfStockLabel>
+        : product.inventoryQuantity != null && product.inventoryQuantity <= 5
+          ? <LowStockLabel>Only {product.inventoryQuantity} left!</LowStockLabel>
+          : null
+      }
+      <AddBtn
+        type="button"
+        onClick={product.inStock !== false ? handleAddClick : undefined}
+        $disabled={product.inStock === false}
+        aria-disabled={product.inStock === false}
+      >
         +
       </AddBtn>
     </Card>

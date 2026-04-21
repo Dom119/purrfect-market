@@ -108,7 +108,7 @@ export const IconButton = styled.button<{ $showTooltip?: boolean }>`
       font-size: 0.75rem;
       font-weight: 500;
       color: white;
-      background: ${theme.colors.charcoal};
+      background: #2d2d44;
       border-radius: ${theme.radius.sm};
       white-space: nowrap;
       opacity: 0;

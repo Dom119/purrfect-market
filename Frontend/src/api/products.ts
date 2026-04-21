@@ -11,6 +11,7 @@ export interface Product {
   reviewCount: number | null
   badge: string | null
   inStock?: boolean
+  inventoryQuantity?: number
 }
 
 export async function fetchProduct(id: number): Promise<Product> {
@@ -28,10 +29,12 @@ export async function fetchProduct(id: number): Promise<Product> {
   return res.json()
 }
 
-export async function fetchProducts(category?: string): Promise<Product[]> {
-  const url = category
-    ? `${API_BASE}/products?category=${encodeURIComponent(category)}`
-    : `${API_BASE}/products`
+export async function fetchProducts(category?: string, search?: string): Promise<Product[]> {
+  const params = new URLSearchParams()
+  if (category) params.set('category', category)
+  if (search) params.set('search', search)
+  const query = params.toString()
+  const url = query ? `${API_BASE}/products?${query}` : `${API_BASE}/products`
   try {
     const res = await fetch(url, { credentials: 'include' })
     if (!res.ok) {

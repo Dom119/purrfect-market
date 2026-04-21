@@ -210,8 +210,8 @@ export function AdminProductsPage() {
           </thead>
           <tbody>
             {products.map((p) => (
-              <tr key={p.id}>
-                <td />
+              <tr key={p.id} style={p.inventoryQuantity <= 10 ? { background: '#fff8e1' } : undefined}>
+                <td>{p.inventoryQuantity <= 10 && <span title="Low stock" style={{ color: '#e67e22', fontWeight: 700 }}>⚠</span>}</td>
                 <td>{p.id}</td>
                 <td>{p.name}</td>
                 <td>{p.category}</td>
@@ -231,6 +231,11 @@ export function AdminProductsPage() {
                   >
                     Save
                   </Btn>
+                  {p.inventoryQuantity <= 10 && (
+                    <span style={{ marginLeft: '0.5rem', fontSize: '0.75rem', color: '#e67e22', fontWeight: 600 }}>
+                      Low stock
+                    </span>
+                  )}
                 </td>
                 <td>{p.inStock ? 'Yes' : 'No'}</td>
                 <td>{p.rating ?? '—'}</td>

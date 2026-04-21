@@ -4,5 +4,5 @@
  */
 export const DEV_AUTH_AUTOFILL = {
   email: 'quydung119@gmail.com',
-  password: '1111',
+  password: 'PurrfectAdmin!2025',
 }

@@ -5,6 +5,7 @@
     "dev": "concurrently -n be,fe -c blue,magenta \"mvn -f Backend/pom.xml spring-boot:run\" \"npm --prefix Frontend run dev\""
   },
   "devDependencies": {
+    "@playwright/test": "^1.59.1",
     "concurrently": "^9.1.0"
   }
 }

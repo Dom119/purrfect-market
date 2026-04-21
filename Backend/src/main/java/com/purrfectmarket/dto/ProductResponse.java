@@ -10,6 +10,7 @@ public record ProductResponse(
         Double rating,
         Integer reviewCount,
         String badge,
-        Boolean inStock
+        Boolean inStock,
+        Integer inventoryQuantity
 ) {
 }

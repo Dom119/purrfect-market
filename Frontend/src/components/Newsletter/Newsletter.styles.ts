@@ -9,7 +9,7 @@ export const Inner = styled.div`
   max-width: ${theme.spacing.container};
   margin: 0 auto;
   padding: 3rem 4rem;
-  background: ${theme.colors.charcoal};
+  background: #2d2d44;
   border-radius: ${theme.radius.xl};
   display: flex;
   align-items: center;

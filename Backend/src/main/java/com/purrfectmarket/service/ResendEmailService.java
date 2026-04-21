@@ -72,7 +72,7 @@ public class ResendEmailService {
         return new BroadcastResult(sent, failed);
     }
 
-    private boolean sendHtmlOrLog(String toEmail, String subject, String html) {
+    public boolean sendHtmlOrLog(String toEmail, String subject, String html) {
         Map<String, Object> body = new LinkedHashMap<>();
         body.put("from", from);
         body.put("to", List.of(toEmail));

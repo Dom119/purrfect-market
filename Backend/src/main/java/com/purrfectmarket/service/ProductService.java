@@ -46,7 +46,8 @@ public class ProductService {
                 p.getRating(),
                 p.getReviewCount(),
                 p.getBadge(),
-                p.getInStock() != null ? p.getInStock() : true
+                p.getInStock() != null ? p.getInStock() : true,
+                p.getInventoryQuantity() != null ? p.getInventoryQuantity() : 0
         );
     }
 

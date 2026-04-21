@@ -21,8 +21,10 @@ import { AdminOrdersPage } from './pages/admin/AdminOrdersPage'
 import { AdminProductsPage } from './pages/admin/AdminProductsPage'
 import { AdminNewsletterPage } from './pages/admin/AdminNewsletterPage'
 import { AdminUsersPage } from './pages/admin/AdminUsersPage'
+import { AdminDashboardPage } from './pages/admin/AdminDashboardPage'
 import { FavoritesProvider } from './context/FavoritesContext'
 import { CartProvider } from './context/CartContext'
+import { ColorThemeProvider } from './context/ThemeContext'
 import { authApi } from './api/auth'
 import type { AuthResponse } from './api/auth'
 
@@ -40,6 +42,7 @@ const PAGE_TITLES: Record<string, string> = {
   '/faq': 'FAQ | Purrfect Market',
   '/orders': 'My Orders | Purrfect Market',
   '/account': 'Account | Purrfect Market',
+  '/admin/dashboard': 'Admin — Dashboard | Purrfect Market',
   '/admin/orders': 'Admin — Orders | Purrfect Market',
   '/admin/products': 'Admin — Products | Purrfect Market',
   '/admin/newsletter': 'Admin — Newsletter | Purrfect Market',
@@ -129,7 +132,8 @@ function AppContent() {
             path="/admin"
             element={<AdminLayout user={user} authReady={authReady} onUserChange={setUser} />}
           >
-            <Route index element={<Navigate to="/admin/orders" replace />} />
+            <Route index element={<Navigate to="/admin/dashboard" replace />} />
+            <Route path="dashboard" element={<AdminDashboardPage />} />
             <Route path="orders" element={<AdminOrdersPage />} />
             <Route path="products" element={<AdminProductsPage />} />
             <Route path="newsletter" element={<AdminNewsletterPage />} />
@@ -144,8 +148,10 @@ function AppContent() {
 
 export function App() {
   return (
-    <BrowserRouter>
-      <AppContent />
-    </BrowserRouter>
+    <ColorThemeProvider>
+      <BrowserRouter>
+        <AppContent />
+      </BrowserRouter>
+    </ColorThemeProvider>
   )
 }

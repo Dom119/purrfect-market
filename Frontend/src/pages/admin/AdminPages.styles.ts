@@ -11,7 +11,7 @@ export const AdminShell = styled.div`
 export const AdminSidebar = styled.aside`
   width: 220px;
   flex-shrink: 0;
-  background: ${theme.colors.navy};
+  background: ${theme.colors.alwaysDark};
   color: white;
   padding: 1.5rem 0;
 
@@ -94,10 +94,10 @@ export const PageHint = styled.p`
 
 export const TableWrap = styled.div`
   overflow-x: auto;
-  background: white;
+  background: ${theme.colors.white};
   border-radius: ${theme.radius.lg};
   box-shadow: ${theme.shadows.sm};
-  border: 1px solid #eee;
+  border: 1px solid ${theme.colors.border};
 `
 
 export const Table = styled.table`
@@ -109,7 +109,8 @@ export const Table = styled.table`
   td {
     padding: 0.75rem 1rem;
     text-align: left;
-    border-bottom: 1px solid #eee;
+    border-bottom: 1px solid ${theme.colors.border};
+    color: ${theme.colors.charcoal};
   }
 
   th {
@@ -133,6 +134,8 @@ export const InputSm = styled.input`
   border: 1px solid ${theme.colors.greyLight};
   border-radius: ${theme.radius.sm};
   font-size: 0.9rem;
+  background: ${theme.colors.white};
+  color: ${theme.colors.charcoal};
 `
 
 export const Btn = styled.button`
@@ -156,7 +159,7 @@ export const Btn = styled.button`
 `
 
 export const BtnSecondary = styled(Btn)`
-  background: ${theme.colors.navy};
+  background: ${theme.colors.alwaysDark};
   &:hover:not(:disabled) {
     background: #2a2a4a;
   }
@@ -175,16 +178,18 @@ export const Field = styled.label`
   gap: 0.35rem;
   font-size: 0.85rem;
   font-weight: 600;
-  color: ${theme.colors.navy};
+  color: ${theme.colors.charcoal};
 
   input,
   textarea,
   select {
     font-weight: 400;
     padding: 0.6rem 0.75rem;
-    border: 1px solid ${theme.colors.greyLight};
+    border: 1px solid ${theme.colors.border};
     border-radius: ${theme.radius.sm};
     font-size: 1rem;
+    background: ${theme.colors.greyBg};
+    color: ${theme.colors.charcoal};
   }
 
   textarea {
@@ -212,11 +217,11 @@ export const SuccessBox = styled.div`
 `
 
 export const Card = styled.div`
-  background: white;
+  background: ${theme.colors.white};
   padding: 1.5rem;
   border-radius: ${theme.radius.lg};
   box-shadow: ${theme.shadows.sm};
-  border: 1px solid #eee;
+  border: 1px solid ${theme.colors.border};
   margin-bottom: 1.5rem;
 `
 
@@ -254,9 +259,10 @@ export const RowCheckbox = styled.input`
 export const SelectSm = styled.select`
   padding: 0.4rem 0.6rem;
   font-size: 0.9rem;
-  border: 1px solid ${theme.colors.greyLight};
+  border: 1px solid ${theme.colors.border};
   border-radius: ${theme.radius.sm};
-  background: white;
+  background: ${theme.colors.white};
+  color: ${theme.colors.charcoal};
   min-width: 10rem;
 `
 
@@ -266,13 +272,14 @@ export const FilterInput = styled.input`
   max-width: 100%;
   padding: 0.35rem 0.45rem;
   font-size: 0.8rem;
-  border: 1px solid ${theme.colors.greyLight};
+  border: 1px solid ${theme.colors.border};
   border-radius: ${theme.radius.sm};
   box-sizing: border-box;
-  background: white;
+  background: ${theme.colors.white};
+  color: ${theme.colors.charcoal};
 
   &::placeholder {
-    color: #9ca3af;
+    color: ${theme.colors.grey};
   }
 `
 
@@ -282,10 +289,11 @@ export const FilterSelect = styled.select`
   max-width: 100%;
   padding: 0.35rem 1.75rem 0.35rem 0.45rem;
   font-size: 0.8rem;
-  border: 1px solid ${theme.colors.greyLight};
+  border: 1px solid ${theme.colors.border};
   border-radius: ${theme.radius.sm};
   box-sizing: border-box;
-  background: white;
+  background: ${theme.colors.white};
+  color: ${theme.colors.charcoal};
   cursor: pointer;
   appearance: none;
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%236b7280' d='M6 8L1 3h10z'/%3E%3C/svg%3E");

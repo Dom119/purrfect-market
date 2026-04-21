@@ -37,7 +37,7 @@ export const WishlistBtn = styled.button<{ $filled?: boolean }>`
   display: flex;
   align-items: center;
   justify-content: center;
-  background: white;
+  background: ${theme.colors.white};
   border-radius: ${theme.radius.full};
   color: ${({ $filled }) => ($filled ? '#e74c3c' : theme.colors.grey)};
   box-shadow: ${theme.shadows.sm};
@@ -93,7 +93,7 @@ export const Price = styled.span`
   padding: 0 1rem 1rem;
 `
 
-export const AddBtn = styled.button`
+export const AddBtn = styled.button<{ $disabled?: boolean }>`
   position: absolute;
   bottom: 1rem;
   right: 1rem;
@@ -105,11 +105,28 @@ export const AddBtn = styled.button`
   font-size: 1.25rem;
   font-weight: 600;
   color: white;
-  background: ${theme.colors.primary};
+  background: ${({ $disabled }) => ($disabled ? theme.colors.grey : theme.colors.primary)};
   border-radius: ${theme.radius.full};
   transition: background 0.2s;
+  cursor: ${({ $disabled }) => ($disabled ? 'not-allowed' : 'pointer')};
 
   &:hover {
-    background: ${theme.colors.primaryDark};
+    background: ${({ $disabled }) => ($disabled ? theme.colors.grey : theme.colors.primaryDark)};
   }
+`
+
+export const LowStockLabel = styled.span`
+  display: block;
+  padding: 0 1rem 0.5rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: #c0392b;
+`
+
+export const OutOfStockLabel = styled.span`
+  display: block;
+  padding: 0 1rem 0.5rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: ${theme.colors.grey};
 `

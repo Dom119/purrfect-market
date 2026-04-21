@@ -3,11 +3,13 @@ package com.purrfectmarket.config;
 import com.purrfectmarket.repository.UserRepository;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.annotation.Order;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.config.annotation.web.configuration.WebSecurityCustomizer;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
@@ -24,34 +26,52 @@ import java.util.List;
 public class SecurityConfig {
 
     @Bean
+    public WebSecurityCustomizer webSecurityCustomizer() {
+        return web -> web.ignoring()
+                .requestMatchers(new AntPathRequestMatcher("/h2-console/**"))
+                .requestMatchers(new AntPathRequestMatcher("/h2-console"));
+    }
+
+    @Bean
     public SessionAuthFilter sessionAuthFilter(UserRepository userRepository) {
         return new SessionAuthFilter(userRepository);
     }
 
+    // Public endpoints — no authentication required. Order(1) ensures this chain
+    // is evaluated before the authenticated chain below.
     @Bean
+    @Order(1)
+    public SecurityFilterChain publicChain(HttpSecurity http) throws Exception {
+        http
+                .securityMatcher(
+                        "/api/hello",
+                        "/api/auth/**",
+                        "/api/newsletter/**",
+                        "/api/products",
+                        "/api/products/**",
+                        "/api/contact",
+                        "/error"
+                )
+                .cors(cors -> cors.configurationSource(corsConfigurationSource()))
+                .csrf(csrf -> csrf.disable())
+                .authorizeHttpRequests(auth -> auth.anyRequest().permitAll())
+                .headers(headers -> headers.frameOptions(frame -> frame.sameOrigin()));
+        return http.build();
+    }
+
+    @Bean
+    @Order(2)
     public SecurityFilterChain securityFilterChain(HttpSecurity http, SessionAuthFilter sessionAuthFilter) throws Exception {
         http
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
-                .csrf(csrf -> csrf.disable()) // Session cookies work without CSRF for API; enable if needed
+                .csrf(csrf -> csrf.disable())
                 .addFilterAfter(sessionAuthFilter, SecurityContextHolderFilter.class)
-                // Use AntPathRequestMatcher for public routes: string requestMatchers() resolves to
-                // MvcRequestMatcher and can skip permitAll() when MVC introspection does not match
-                // (e.g. GET /api/products), falling through to authenticated() and returning 403.
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers(new AntPathRequestMatcher("/api/**", HttpMethod.OPTIONS.name())).permitAll()
-                        .requestMatchers(new AntPathRequestMatcher("/api/auth/**")).permitAll()
-                        .requestMatchers(new AntPathRequestMatcher("/api/hello")).permitAll()
-                        .requestMatchers(new AntPathRequestMatcher("/api/newsletter/**")).permitAll()
-                        .requestMatchers(new AntPathRequestMatcher("/api/products/*/image", HttpMethod.GET.name())).permitAll()
-                        .requestMatchers(new AntPathRequestMatcher("/api/products")).permitAll()
-                        .requestMatchers(new AntPathRequestMatcher("/api/products/**")).permitAll()
                         .requestMatchers(new AntPathRequestMatcher("/api/admin/**")).hasRole("MAIN_ADMIN")
-                        .requestMatchers(new AntPathRequestMatcher("/h2-console/**")).permitAll()
-                        .requestMatchers(new AntPathRequestMatcher("/api/**")).authenticated()
+                        .anyRequest().authenticated()
                 )
                 .formLogin(form -> form.disable())
-                .httpBasic(basic -> basic.disable())
-                .headers(headers -> headers.frameOptions(frame -> frame.sameOrigin())); // H2 console uses frames
+                .httpBasic(basic -> basic.disable());
 
         return http.build();
     }

@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useNavigate, useParams, useSearchParams } from 'react-router-dom'
 import { fetchProduct, fetchProducts, type Product } from '../api/products'
 import { ProductCard } from '../components/ProductCard/ProductCard'
@@ -87,17 +87,16 @@ export function ProductsPage({ user, onLoginClick }: ProductsPageProps) {
 
   useEffect(() => {
     const category = selectedCategory === 'All' ? undefined : selectedCategory
-    fetchProducts(category)
-      .then(setProducts)
-      .catch((err) => setError(err instanceof Error ? err.message : 'Failed to load'))
-      .finally(() => setLoading(false))
-  }, [selectedCategory])
-
-  const filteredProducts = useMemo(() => {
-    const q = searchQuery.trim().toLowerCase()
-    if (!q) return products
-    return products.filter((p) => p.name.toLowerCase().includes(q))
-  }, [products, searchQuery])
+    const debounce = setTimeout(() => {
+      setLoading(true)
+      setError(null)
+      fetchProducts(category, searchQuery.trim() || undefined)
+        .then(setProducts)
+        .catch((err) => setError(err instanceof Error ? err.message : 'Failed to load'))
+        .finally(() => setLoading(false))
+    }, 300)
+    return () => clearTimeout(debounce)
+  }, [selectedCategory, searchQuery])
 
   const setCategory = (cat: string) => {
     setSelectedCategory(cat)
@@ -176,7 +175,7 @@ export function ProductsPage({ user, onLoginClick }: ProductsPageProps) {
       </CategoryFilter>
 
       <ProductGrid>
-        {filteredProducts.map((product) => (
+        {products.map((product) => (
           <ProductCard
             key={product.id}
             product={product}

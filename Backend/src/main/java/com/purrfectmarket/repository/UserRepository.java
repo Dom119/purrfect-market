@@ -4,6 +4,7 @@ import com.purrfectmarket.model.User;
 import com.purrfectmarket.model.UserGroup;
 import org.springframework.data.jpa.repository.JpaRepository;
 
+import java.time.Instant;
 import java.util.Optional;
 
 public interface UserRepository extends JpaRepository<User, Long> {
@@ -13,4 +14,7 @@ public interface UserRepository extends JpaRepository<User, Long> {
     boolean existsByEmailIgnoreCase(String email);
 
     long countByUserGroup(UserGroup userGroup);
+
+    long countByCreatedAtAfter(Instant since);
+
 }
