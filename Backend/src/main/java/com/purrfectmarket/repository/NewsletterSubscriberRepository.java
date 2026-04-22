@@ -9,5 +9,7 @@ public interface NewsletterSubscriberRepository extends JpaRepository<Newsletter
 
     boolean existsByEmail(String email);
 
+    java.util.Optional<com.purrfectmarket.model.NewsletterSubscriber> findByEmail(String email);
+
     List<NewsletterSubscriber> findAllByOrderBySubscribedAtDesc();
 }

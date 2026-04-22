@@ -33,6 +33,31 @@ public class AdminProductController {
         return ResponseEntity.ok(adminProductService.updateInventory(id, body));
     }
 
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> deleteProduct(@PathVariable Long id) {
+        adminProductService.deleteProduct(id);
+        return ResponseEntity.noContent().build();
+    }
+
+    @PutMapping(value = "/{id}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<AdminProductResponse> updateProduct(
+            @PathVariable Long id,
+            @RequestParam String name,
+            @RequestParam(required = false) String description,
+            @RequestParam double price,
+            @RequestParam String category,
+            @RequestParam(defaultValue = "0") int inventory,
+            @RequestParam(required = false) String imageUrl,
+            @RequestParam(required = false) Double rating,
+            @RequestParam(required = false) Integer reviewCount,
+            @RequestParam(required = false) String badge,
+            @RequestParam(required = false) Boolean inStock,
+            @RequestPart(value = "image", required = false) MultipartFile image) throws IOException {
+        return ResponseEntity.ok(adminProductService.updateProduct(
+                id, name, description, price, category, inventory,
+                imageUrl, rating, reviewCount, badge, inStock, image));
+    }
+
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<AdminProductResponse> createProduct(
             @RequestParam String name,

@@ -14,14 +14,16 @@ interface AdminLayoutProps {
   /** False until `/auth/me` finishes so refresh on `/admin/*` does not redirect to home. */
   authReady: boolean
   onUserChange?: (user: AuthResponse | null) => void
+  onStartEmulation?: (targetUser: AuthResponse, admin: AuthResponse) => void
 }
 
 export type AdminOutletContext = {
   user: AuthResponse | null
   onUserChange?: (user: AuthResponse | null) => void
+  onStartEmulation?: (targetUser: AuthResponse, admin: AuthResponse) => void
 }
 
-export function AdminLayout({ user, authReady, onUserChange }: AdminLayoutProps) {
+export function AdminLayout({ user, authReady, onUserChange, onStartEmulation }: AdminLayoutProps) {
   if (!authReady) {
     return (
       <AdminShell>
@@ -49,10 +51,12 @@ export function AdminLayout({ user, authReady, onUserChange }: AdminLayoutProps)
         <SideNavLink to="/admin/orders">Orders</SideNavLink>
         <SideNavLink to="/admin/products">Products</SideNavLink>
         <SideNavLink to="/admin/newsletter">Newsletter</SideNavLink>
+        <SideNavLink to="/admin/subscribers">Subscribers</SideNavLink>
+        <SideNavLink to="/admin/reviews">Pending Reviews</SideNavLink>
         <SideNavLink to="/admin/users">Users</SideNavLink>
       </AdminSidebar>
       <AdminMain>
-        <Outlet context={{ user, onUserChange } satisfies AdminOutletContext} />
+        <Outlet context={{ user, onUserChange, onStartEmulation } satisfies AdminOutletContext} />
       </AdminMain>
     </AdminShell>
   )

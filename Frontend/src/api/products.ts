@@ -29,6 +29,27 @@ export async function fetchProduct(id: number): Promise<Product> {
   return res.json()
 }
 
+export async function submitReview(
+  productId: number,
+  payload: { rating: number; title: string; body: string }
+): Promise<string> {
+  const res = await fetch(`${API_BASE}/reviews/${productId}`, {
+    method: 'POST',
+    credentials: 'include',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(payload),
+  })
+  const data = await res.json().catch(() => ({ message: res.statusText }))
+  if (!res.ok) throw new Error((data as { message?: string }).message || 'Submission failed')
+  return (data as { message: string }).message
+}
+
+export async function fetchCategories(): Promise<string[]> {
+  const res = await fetch(`${API_BASE}/products/categories`, { credentials: 'include' })
+  if (!res.ok) return []
+  return res.json()
+}
+
 export async function fetchProducts(category?: string, search?: string): Promise<Product[]> {
   const params = new URLSearchParams()
   if (category) params.set('category', category)

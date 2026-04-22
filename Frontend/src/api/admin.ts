@@ -59,6 +59,30 @@ export interface AdminSubscriber {
   id: number
   email: string
   subscribedAt: string
+  isUser: boolean
+  userName: string | null
+}
+
+export interface PendingReview {
+  id: number
+  productId: number
+  productName: string
+  authorName: string
+  authorEmail: string
+  rating: number
+  title: string
+  body: string
+  submittedAt: string
+}
+
+export interface BroadcastLog {
+  id: number
+  subject: string
+  htmlBody: string
+  recipients: string[]
+  sentCount: number
+  failedCount: number
+  sentAt: string
 }
 
 export interface AdminUser {
@@ -66,6 +90,7 @@ export interface AdminUser {
   email: string
   name: string
   userGroup: string
+  isSubscriber: boolean
 }
 
 export interface AdminStatsTopProduct {
@@ -106,6 +131,18 @@ export const adminApi = {
       body: form,
     }),
 
+  updateProduct: (productId: number, form: FormData) =>
+    adminFetch<AdminProduct>(`/admin/products/${productId}`, {
+      method: 'PUT',
+      body: form,
+    }),
+
+  deleteProduct: (productId: number) =>
+    adminFetch<void>(`/admin/products/${productId}`, { method: 'DELETE' }),
+
+  startEmulation: (userId: number) =>
+    adminFetch<import('./auth').AuthResponse>(`/admin/emulate/${userId}`, { method: 'POST' }),
+
   getSubscribers: () => adminFetch<AdminSubscriber[]>('/admin/subscribers'),
 
   getUsers: () => adminFetch<AdminUser[]>('/admin/users'),
@@ -123,4 +160,14 @@ export const adminApi = {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ subject, htmlBody, recipientEmails }),
     }),
+
+  getBroadcastHistory: () => adminFetch<BroadcastLog[]>('/admin/newsletter/history'),
+
+  getPendingReviews: () => adminFetch<PendingReview[]>('/admin/reviews/pending'),
+
+  approveReview: (id: number) =>
+    adminFetch<{ message: string }>(`/admin/reviews/${id}/approve`, { method: 'POST' }),
+
+  rejectReview: (id: number) =>
+    adminFetch<void>(`/admin/reviews/${id}`, { method: 'DELETE' }),
 }

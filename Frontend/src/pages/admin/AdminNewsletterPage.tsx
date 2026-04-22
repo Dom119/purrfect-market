@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
-import { adminApi, type AdminSubscriber } from '../../api/admin'
+import { adminApi, type AdminSubscriber, type BroadcastLog } from '../../api/admin'
 import {
   PageTitle,
   PageHint,
@@ -16,6 +16,10 @@ import {
   CheckboxHeader,
   CheckboxCell,
   RowCheckbox,
+  ModalOverlay,
+  ModalBox,
+  ModalTitle,
+  BodyPreview,
 } from './AdminPages.styles'
 
 export function AdminNewsletterPage() {
@@ -28,6 +32,12 @@ export function AdminNewsletterPage() {
   const [sending, setSending] = useState(false)
   const [sendResult, setSendResult] = useState<string | null>(null)
   const headerCheckboxRef = useRef<HTMLInputElement>(null)
+
+  const [showHistory, setShowHistory] = useState(false)
+  const [history, setHistory] = useState<BroadcastLog[]>([])
+  const [historyLoading, setHistoryLoading] = useState(false)
+  const [historyError, setHistoryError] = useState<string | null>(null)
+  const [expandedLog, setExpandedLog] = useState<number | null>(null)
 
   useEffect(() => {
     adminApi
@@ -88,10 +98,26 @@ export function AdminNewsletterPage() {
     try {
       const r = await adminApi.broadcastNewsletter(broadcastSubject, broadcastHtml, emails)
       setSendResult(r.message)
+      setBroadcastSubject('')
+      setBroadcastHtml('')
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Send failed')
     } finally {
       setSending(false)
+    }
+  }
+
+  const openHistory = async () => {
+    setShowHistory(true)
+    setHistoryLoading(true)
+    setHistoryError(null)
+    try {
+      const logs = await adminApi.getBroadcastHistory()
+      setHistory(logs)
+    } catch (e) {
+      setHistoryError(e instanceof Error ? e.message : 'Failed to load history')
+    } finally {
+      setHistoryLoading(false)
     }
   }
 
@@ -108,7 +134,12 @@ export function AdminNewsletterPage() {
       {sendResult && <SuccessBox>{sendResult}</SuccessBox>}
 
       <Card>
-        <CardTitle>Compose newsletter</CardTitle>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+          <CardTitle>Compose newsletter</CardTitle>
+          <BtnSecondary type="button" onClick={openHistory}>
+            View history
+          </BtnSecondary>
+        </div>
         <form onSubmit={sendBroadcast} style={{ display: 'flex', flexDirection: 'column', gap: '1rem', maxWidth: 640 }}>
           <Field>
             Subject *
@@ -185,6 +216,60 @@ export function AdminNewsletterPage() {
         </Table>
       </TableWrap>
       {subscribers.length === 0 && !error && <p style={{ color: '#6b7280', marginTop: '0.75rem' }}>No subscribers yet.</p>}
+
+      {showHistory && (
+        <ModalOverlay onClick={() => setShowHistory(false)}>
+          <ModalBox
+            style={{ maxWidth: 800, maxHeight: '80vh', overflowY: 'auto' }}
+            onClick={(e) => e.stopPropagation()}
+          >
+            <ModalTitle>Broadcast history</ModalTitle>
+            {historyLoading && <p>Loading…</p>}
+            {historyError && <ErrorBox>{historyError}</ErrorBox>}
+            {!historyLoading && !historyError && history.length === 0 && (
+              <p style={{ color: '#6b7280' }}>No broadcasts sent yet.</p>
+            )}
+            {history.map((log) => (
+              <div
+                key={log.id}
+                style={{
+                  borderBottom: '1px solid var(--color-border, #e5e7eb)',
+                  paddingBottom: '1rem',
+                  marginBottom: '1rem',
+                }}
+              >
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: '1rem' }}>
+                  <div>
+                    <strong>{log.subject}</strong>
+                    <div style={{ fontSize: '0.85rem', color: '#6b7280', marginTop: 2 }}>
+                      {new Date(log.sentAt).toLocaleString()} · {log.sentCount} sent
+                      {log.failedCount > 0 && `, ${log.failedCount} failed`}
+                    </div>
+                    <div style={{ fontSize: '0.85rem', color: '#6b7280', marginTop: 2 }}>
+                      To: {log.recipients.join(', ')}
+                    </div>
+                  </div>
+                  <BtnSecondary
+                    type="button"
+                    style={{ flexShrink: 0 }}
+                    onClick={() => setExpandedLog(expandedLog === log.id ? null : log.id)}
+                  >
+                    {expandedLog === log.id ? 'Hide body' : 'View body'}
+                  </BtnSecondary>
+                </div>
+                {expandedLog === log.id && (
+                  <BodyPreview>{log.htmlBody}</BodyPreview>
+                )}
+              </div>
+            ))}
+            <div style={{ textAlign: 'right', marginTop: '0.5rem' }}>
+              <BtnSecondary type="button" onClick={() => setShowHistory(false)}>
+                Close
+              </BtnSecondary>
+            </div>
+          </ModalBox>
+        </ModalOverlay>
+      )}
     </>
   )
 }

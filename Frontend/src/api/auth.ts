@@ -29,6 +29,11 @@ export interface AuthResponse {
   userGroup?: string
 }
 
+export interface EmulationStatus {
+  active: boolean
+  originalAdmin: AuthResponse | null
+}
+
 export function isMainAdmin(user: AuthResponse | null | undefined): boolean {
   return user?.userGroup === 'MAIN_ADMIN'
 }
@@ -82,4 +87,9 @@ export const authApi = {
       method: 'POST',
       body: JSON.stringify(data),
     }),
+
+  getEmulation: () => fetchApi<EmulationStatus>('/auth/emulation'),
+
+  stopEmulation: () =>
+    fetchApi<AuthResponse>('/auth/emulate/stop', { method: 'POST' }),
 }

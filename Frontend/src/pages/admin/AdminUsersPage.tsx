@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
-import { useOutletContext } from 'react-router-dom'
+import { useOutletContext, useNavigate } from 'react-router-dom'
 import { adminApi, type AdminUser } from '../../api/admin'
-import { authApi } from '../../api/auth'
+import { authApi, isMainAdmin } from '../../api/auth'
 import type { AdminOutletContext } from './AdminLayout'
 import {
   PageTitle,
@@ -17,13 +17,15 @@ import {
 type GroupValue = 'USER' | 'MAIN_ADMIN'
 
 export function AdminUsersPage() {
-  const { user: sessionUser, onUserChange } = useOutletContext<AdminOutletContext>()
+  const { user: sessionUser, onUserChange, onStartEmulation } = useOutletContext<AdminOutletContext>()
+  const navigate = useNavigate()
   const [users, setUsers] = useState<AdminUser[]>([])
   const [drafts, setDrafts] = useState<Record<number, GroupValue>>({})
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [message, setMessage] = useState<string | null>(null)
   const [savingId, setSavingId] = useState<number | null>(null)
+  const [emulatingId, setEmulatingId] = useState<number | null>(null)
 
   const load = () =>
     adminApi
@@ -68,6 +70,21 @@ export function AdminUsersPage() {
     }
   }
 
+  const emulateUser = async (u: AdminUser) => {
+    if (!sessionUser) return
+    setEmulatingId(u.id)
+    setError(null)
+    try {
+      const targetUser = await adminApi.startEmulation(u.id)
+      onStartEmulation?.(targetUser, sessionUser)
+      navigate('/')
+    } catch (e) {
+      setError(e instanceof Error ? e.message : 'Emulation failed')
+    } finally {
+      setEmulatingId(null)
+    }
+  }
+
   if (loading) return <PageTitle>Loading users…</PageTitle>
 
   return (
@@ -87,8 +104,10 @@ export function AdminUsersPage() {
               <th>ID</th>
               <th>Name</th>
               <th>Email</th>
+              <th>Subscriber</th>
               <th>Group</th>
               <th></th>
+              {isMainAdmin(sessionUser) && <th></th>}
             </tr>
           </thead>
           <tbody>
@@ -100,6 +119,11 @@ export function AdminUsersPage() {
                   <td>{u.id}</td>
                   <td>{u.name}</td>
                   <td>{u.email}</td>
+                  <td style={{ textAlign: 'center' }}>
+                    {u.isSubscriber
+                      ? <span style={{ color: '#16a34a', fontWeight: 600 }}>✓ Yes</span>
+                      : <span style={{ color: '#9ca3af' }}>—</span>}
+                  </td>
                   <td>
                     <SelectSm
                       value={draft}
@@ -117,6 +141,20 @@ export function AdminUsersPage() {
                       {savingId === u.id ? 'Saving…' : 'Save'}
                     </Btn>
                   </td>
+                  {isMainAdmin(sessionUser) && (
+                    <td>
+                      {u.id !== sessionUser?.id && (
+                        <Btn
+                          type="button"
+                          disabled={emulatingId === u.id}
+                          style={{ background: '#7c3aed', whiteSpace: 'nowrap' }}
+                          onClick={() => emulateUser(u)}
+                        >
+                          {emulatingId === u.id ? 'Starting…' : 'Emulate'}
+                        </Btn>
+                      )}
+                    </td>
+                  )}
                 </tr>
               )
             })}

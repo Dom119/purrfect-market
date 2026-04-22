@@ -48,9 +48,10 @@ export const Input = styled.input`
   padding: 0.65rem 0.85rem;
   font-size: 1rem;
   font-family: ${theme.fonts.body};
-  border: 1px solid ${theme.colors.greyLight};
+  border: 1px solid ${theme.colors.border};
   border-radius: ${theme.radius.md};
   color: ${theme.colors.navy};
+  background: ${theme.colors.white};
 
   &:focus {
     outline: none;
@@ -62,8 +63,9 @@ export const Input = styled.input`
 export const ReadOnly = styled.div`
   padding: 0.65rem 0.85rem;
   font-size: 1rem;
-  color: ${theme.colors.grey};
+  color: ${theme.colors.charcoal};
   background: ${theme.colors.greyBg};
+  border: 1px solid ${theme.colors.border};
   border-radius: ${theme.radius.md};
 `
 

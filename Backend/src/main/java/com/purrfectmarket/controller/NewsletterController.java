@@ -22,4 +22,15 @@ public class NewsletterController {
         String message = newsletterService.subscribe(body.email());
         return ResponseEntity.ok(Map.of("message", message));
     }
+
+    @GetMapping("/status")
+    public ResponseEntity<Map<String, Boolean>> status(@RequestParam String email) {
+        return ResponseEntity.ok(Map.of("subscribed", newsletterService.isSubscribed(email)));
+    }
+
+    @PostMapping("/unsubscribe")
+    public ResponseEntity<Map<String, String>> unsubscribe(@RequestBody NewsletterSubscribeRequest body) {
+        newsletterService.unsubscribe(body.email());
+        return ResponseEntity.ok(Map.of("message", "You've been unsubscribed."));
+    }
 }

@@ -190,7 +190,7 @@ export function ProductsPage({ user, onLoginClick }: ProductsPageProps) {
             }}
             onAddClick={() => {
               if (!user) onLoginClick?.()
-              else cart?.addToCart(product.id)
+              else cart?.addToCart(product.id, 1, product.name)
             }}
           />
         ))}
@@ -214,10 +214,25 @@ export function ProductsPage({ user, onLoginClick }: ProductsPageProps) {
           selectedProduct
             ? () => {
                 if (!user) onLoginClick?.()
-                else cart?.addToCart(selectedProduct.id)
+                else cart?.addToCart(selectedProduct.id, 1, selectedProduct.name)
               }
             : undefined
         }
+        cartQuantity={
+          selectedProduct
+            ? (cart?.cart?.items.find((i) => i.productId === selectedProduct.id)?.quantity ?? 0)
+            : 0
+        }
+        onSaveQuantity={
+          selectedProduct && user
+            ? async (qty) => {
+                await cart?.updateQuantity(selectedProduct.id, qty)
+                cart?.showToast('Cart updated!')
+              }
+            : undefined
+        }
+        user={user}
+        onLoginClick={onLoginClick}
       />
     </PageContainer>
   )

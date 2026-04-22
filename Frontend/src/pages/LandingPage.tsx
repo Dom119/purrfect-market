@@ -20,7 +20,7 @@ export function LandingPage({ user, onLoginClick }: LandingPageProps) {
       <PurrfectPicks user={user} onLoginClick={onLoginClick} />
       <ValuePropositions />
       <Testimonials />
-      <Newsletter />
+      <Newsletter user={user} />
       <Footer />
     </>
   )

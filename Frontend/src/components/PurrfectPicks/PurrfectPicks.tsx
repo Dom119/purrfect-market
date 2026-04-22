@@ -43,7 +43,7 @@ export function PurrfectPicks({ user, onLoginClick }: PurrfectPicksProps) {
             }}
             onAddClick={() => {
               if (!user) onLoginClick?.()
-              else cart?.addToCart(product.id)
+              else cart?.addToCart(product.id, 1, product.name)
             }}
           />
         ))}

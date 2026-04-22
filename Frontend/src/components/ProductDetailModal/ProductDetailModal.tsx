@@ -1,4 +1,4 @@
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import {
   Overlay,
   Modal,
@@ -14,18 +14,26 @@ import {
   Actions,
   FavoriteIconBtn,
   AddButton,
+  QtyRow,
+  QtyBtn,
+  QtyCount,
+  SaveButton,
 } from './ProductDetailModal.styles'
 import type { Product } from '../ProductCard/ProductCard'
+import { ReviewsModal } from '../ReviewsModal/ReviewsModal'
 
 interface ProductDetailModalProps {
   product: Product | null
   isOpen: boolean
-  /** When opening by URL, show loading until product is fetched */
   loading?: boolean
   onClose: () => void
   isFavorite?: boolean
   onFavoriteClick?: () => void
   onAddClick?: () => void
+  cartQuantity?: number
+  onSaveQuantity?: (qty: number) => Promise<void>
+  user?: { id: number } | null
+  onLoginClick?: () => void
 }
 
 export function ProductDetailModal({
@@ -36,7 +44,19 @@ export function ProductDetailModal({
   isFavorite,
   onFavoriteClick,
   onAddClick,
+  cartQuantity = 0,
+  onSaveQuantity,
+  user,
+  onLoginClick,
 }: ProductDetailModalProps) {
+  const [localQty, setLocalQty] = useState(cartQuantity || 1)
+  const [saving, setSaving] = useState(false)
+  const [showReviews, setShowReviews] = useState(false)
+
+  useEffect(() => {
+    setLocalQty(cartQuantity > 0 ? cartQuantity : 1)
+  }, [cartQuantity, product?.id])
+
   useEffect(() => {
     const handleEscape = (e: KeyboardEvent) => {
       if (e.key === 'Escape') onClose()
@@ -68,6 +88,19 @@ export function ProductDetailModal({
     )
   }
 
+  const inCart = cartQuantity > 0
+  const inStock = product.inStock !== false
+
+  const handleSave = async () => {
+    if (!onSaveQuantity) return
+    setSaving(true)
+    try {
+      await onSaveQuantity(localQty)
+    } finally {
+      setSaving(false)
+    }
+  }
+
   return (
     <Overlay onClick={onClose} role="dialog" aria-modal="true" aria-labelledby="product-detail-title">
       <Modal onClick={(e) => e.stopPropagation()}>
@@ -84,12 +117,27 @@ export function ProductDetailModal({
             {product.rating != null && (
               <>
                 <Stars count={product.rating} />
-                <span>({product.reviewCount ?? 0} reviews)</span>
+                <button
+                  type="button"
+                  onClick={() => setShowReviews(true)}
+                  style={{
+                    background: 'none',
+                    border: 'none',
+                    padding: 0,
+                    cursor: 'pointer',
+                    fontSize: 'inherit',
+                    color: 'inherit',
+                    textDecoration: 'underline',
+                    textUnderlineOffset: '2px',
+                  }}
+                >
+                  ({product.reviewCount ?? 0} reviews)
+                </button>
               </>
             )}
           </Rating>
-          <StockStatus $inStock={product.inStock !== false}>
-            {product.inStock !== false ? '● In Stock' : '○ Out of Stock'}
+          <StockStatus $inStock={inStock}>
+            {inStock ? '● In Stock' : '○ Out of Stock'}
           </StockStatus>
           <Price>${product.price.toFixed(2)}</Price>
           <Description>{product.description}</Description>
@@ -104,16 +152,56 @@ export function ProductDetailModal({
                 <HeartIcon filled={isFavorite} />
               </FavoriteIconBtn>
             )}
-            <AddButton
-              type="button"
-              onClick={product.inStock !== false ? onAddClick : undefined}
-              disabled={product.inStock === false}
-            >
-              {product.inStock !== false ? 'Add to Cart' : 'Out of Stock'}
-            </AddButton>
+            {inCart && onSaveQuantity ? (
+              <QtyRow>
+                <QtyBtn
+                  type="button"
+                  onClick={() => setLocalQty((q) => Math.max(1, q - 1))}
+                  disabled={localQty <= 1}
+                  aria-label="Decrease quantity"
+                >
+                  −
+                </QtyBtn>
+                <QtyCount>{localQty}</QtyCount>
+                <QtyBtn
+                  type="button"
+                  onClick={() => setLocalQty((q) => q + 1)}
+                  aria-label="Increase quantity"
+                >
+                  +
+                </QtyBtn>
+                <SaveButton
+                  type="button"
+                  onClick={handleSave}
+                  disabled={saving || localQty === cartQuantity}
+                  style={{ marginLeft: '0.75rem' }}
+                >
+                  {saving ? 'Saving…' : 'Save'}
+                </SaveButton>
+              </QtyRow>
+            ) : (
+              <AddButton
+                type="button"
+                onClick={inStock ? onAddClick : undefined}
+                disabled={!inStock}
+              >
+                {inStock ? 'Add to Cart' : 'Out of Stock'}
+              </AddButton>
+            )}
           </Actions>
         </Content>
       </Modal>
+      {showReviews && product.rating != null && (
+        <ReviewsModal
+          productId={product.id}
+          productName={product.name}
+          totalCount={product.reviewCount ?? 0}
+          avgRating={product.rating}
+          user={user}
+          onClose={() => setShowReviews(false)}
+          onLoginClick={() => { setShowReviews(false); onLoginClick?.() }}
+        />
+      )}
     </Overlay>
   )
 }

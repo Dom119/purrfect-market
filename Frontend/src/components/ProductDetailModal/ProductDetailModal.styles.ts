@@ -183,3 +183,61 @@ export const AddButton = styled.button`
     opacity: 0.7;
   }
 `
+
+export const QtyRow = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 0;
+  flex: 1;
+`
+
+export const QtyBtn = styled.button`
+  width: 40px;
+  height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: ${theme.colors.greyBg};
+  border: 1px solid ${theme.colors.border};
+  color: ${theme.colors.charcoal};
+  font-size: 1.25rem;
+  cursor: pointer;
+  transition: background 0.15s;
+
+  &:first-child { border-radius: ${theme.radius.md} 0 0 ${theme.radius.md}; }
+  &:last-of-type { border-radius: 0 ${theme.radius.md} ${theme.radius.md} 0; }
+
+  &:hover:not(:disabled) { background: ${theme.colors.border}; }
+  &:disabled { opacity: 0.4; cursor: not-allowed; }
+`
+
+export const QtyCount = styled.span`
+  min-width: 44px;
+  height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-top: 1px solid ${theme.colors.border};
+  border-bottom: 1px solid ${theme.colors.border};
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: ${theme.colors.navy};
+  background: ${theme.colors.white};
+`
+
+export const SaveButton = styled.button`
+  padding: 0 1.5rem;
+  height: 44px;
+  font-size: 1rem;
+  font-weight: 600;
+  color: white;
+  background: ${theme.colors.primary};
+  border: none;
+  border-radius: ${theme.radius.md};
+  cursor: pointer;
+  transition: background 0.2s;
+  white-space: nowrap;
+
+  &:hover:not(:disabled) { background: ${theme.colors.primaryDark}; }
+  &:disabled { opacity: 0.6; cursor: not-allowed; }
+`

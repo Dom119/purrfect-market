@@ -4,27 +4,35 @@ import com.purrfectmarket.dto.AdminUserResponse;
 import com.purrfectmarket.dto.UpdateUserGroupRequest;
 import com.purrfectmarket.model.User;
 import com.purrfectmarket.model.UserGroup;
+import com.purrfectmarket.repository.NewsletterSubscriberRepository;
 import com.purrfectmarket.repository.UserRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @Service
 public class AdminUserService {
 
     private final UserRepository userRepository;
+    private final NewsletterSubscriberRepository subscriberRepository;
 
-    public AdminUserService(UserRepository userRepository) {
+    public AdminUserService(UserRepository userRepository, NewsletterSubscriberRepository subscriberRepository) {
         this.userRepository = userRepository;
+        this.subscriberRepository = subscriberRepository;
     }
 
     @Transactional(readOnly = true)
     public List<AdminUserResponse> listUsers() {
+        Set<String> subscriberEmails = subscriberRepository.findAllByOrderBySubscribedAtDesc().stream()
+                .map(s -> s.getEmail().toLowerCase())
+                .collect(Collectors.toSet());
         return userRepository.findAll().stream()
                 .sorted((a, b) -> a.getEmail().compareToIgnoreCase(b.getEmail()))
-                .map(this::toResponse)
-                .toList();
+                .map(u -> toResponse(u, subscriberEmails))
+                .collect(Collectors.toList());
     }
 
     @Transactional
@@ -51,15 +59,12 @@ public class AdminUserService {
 
         user.setUserGroup(newGroup);
         user = userRepository.save(user);
-        return toResponse(user);
+        boolean isSubscriber = subscriberRepository.existsByEmail(user.getEmail().toLowerCase());
+        return new AdminUserResponse(user.getId(), user.getEmail(), user.getName(), user.getUserGroup().name(), isSubscriber);
     }
 
-    private AdminUserResponse toResponse(User user) {
-        return new AdminUserResponse(
-                user.getId(),
-                user.getEmail(),
-                user.getName(),
-                user.getUserGroup().name()
-        );
+    private AdminUserResponse toResponse(User user, Set<String> subscriberEmails) {
+        boolean isSubscriber = subscriberEmails.contains(user.getEmail().toLowerCase());
+        return new AdminUserResponse(user.getId(), user.getEmail(), user.getName(), user.getUserGroup().name(), isSubscriber);
     }
 }

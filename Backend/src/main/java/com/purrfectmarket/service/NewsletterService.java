@@ -18,6 +18,18 @@ public class NewsletterService {
         this.resendEmailService = resendEmailService;
     }
 
+    public boolean isSubscribed(String email) {
+        if (email == null) return false;
+        return repository.existsByEmail(email.trim().toLowerCase());
+    }
+
+    @Transactional
+    public void unsubscribe(String rawEmail) {
+        if (rawEmail == null) return;
+        String email = rawEmail.trim().toLowerCase();
+        repository.findByEmail(email).ifPresent(repository::delete);
+    }
+
     @Transactional
     public String subscribe(String rawEmail) {
         if (rawEmail == null) {

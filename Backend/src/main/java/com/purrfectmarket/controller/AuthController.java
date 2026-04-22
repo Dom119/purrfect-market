@@ -2,6 +2,7 @@ package com.purrfectmarket.controller;
 
 import com.purrfectmarket.dto.AuthResponse;
 import com.purrfectmarket.dto.ChangePasswordRequest;
+import com.purrfectmarket.dto.EmulationStatus;
 import com.purrfectmarket.dto.LoginRequest;
 import com.purrfectmarket.dto.RegisterRequest;
 import com.purrfectmarket.dto.UpdateProfileRequest;
@@ -83,6 +84,28 @@ public class AuthController {
         AuthResponse updated = authService.changePassword(userId, body);
         httpRequest.getSession().setAttribute("user", updated);
         return ResponseEntity.ok(updated);
+    }
+
+    @GetMapping("/emulation")
+    public ResponseEntity<EmulationStatus> emulationStatus(HttpServletRequest httpRequest) {
+        HttpSession session = httpRequest.getSession(false);
+        if (session == null) return ResponseEntity.ok(new EmulationStatus(false, null));
+        AuthResponse original = (AuthResponse) session.getAttribute("originalAdmin");
+        return ResponseEntity.ok(original != null
+                ? new EmulationStatus(true, original)
+                : new EmulationStatus(false, null));
+    }
+
+    @PostMapping("/emulate/stop")
+    public ResponseEntity<AuthResponse> stopEmulation(HttpServletRequest httpRequest) {
+        HttpSession session = httpRequest.getSession(false);
+        if (session == null) return ResponseEntity.status(401).build();
+        AuthResponse original = (AuthResponse) session.getAttribute("originalAdmin");
+        if (original == null) return ResponseEntity.badRequest().build();
+        AuthResponse fresh = authService.refreshAuthResponse(original.id());
+        session.setAttribute("user", fresh);
+        session.removeAttribute("originalAdmin");
+        return ResponseEntity.ok(fresh);
     }
 
     private Long requireUserId(HttpServletRequest request) {

@@ -25,6 +25,7 @@ Thumbs.db
 .env.local
 .env.*.local
 *.pem
+Backend/src/main/resources/application.properties
 
 # Logs
 *.log

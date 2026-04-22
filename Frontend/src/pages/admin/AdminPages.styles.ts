@@ -120,12 +120,71 @@ export const Table = styled.table`
   }
 `
 
+export const SortTh = styled.th<{ $active: boolean; $asc: boolean }>`
+  cursor: pointer;
+  user-select: none;
+  white-space: nowrap;
+
+  &::after {
+    content: '${({ $active, $asc }) => ($active ? ($asc ? ' ▲' : ' ▼') : ' ⇅')}';
+    font-size: 0.7rem;
+    opacity: ${({ $active }) => ($active ? 1 : 0.35)};
+    margin-left: 0.2rem;
+  }
+  &:hover { background: ${theme.colors.border}; }
+`
+
 export const Thumb = styled.img`
   width: 48px;
   height: 48px;
   object-fit: cover;
   border-radius: ${theme.radius.sm};
   background: ${theme.colors.greyBg};
+  transition: opacity 0.15s;
+  &:hover { opacity: 0.8; }
+`
+
+export const ThumbWrap = styled.span`
+  position: relative;
+  display: inline-block;
+  cursor: zoom-in;
+
+  &[data-tooltip]::after {
+    content: attr(data-tooltip);
+    position: absolute;
+    bottom: calc(100% + 6px);
+    left: 50%;
+    transform: translateX(-50%);
+    background: ${theme.colors.charcoal};
+    color: #fff;
+    font-size: 0.72rem;
+    white-space: nowrap;
+    padding: 0.25rem 0.5rem;
+    border-radius: ${theme.radius.sm};
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.15s;
+  }
+  &[data-tooltip]:hover::after { opacity: 1; }
+`
+
+export const LightboxOverlay = styled.div`
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.8);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1100;
+  cursor: zoom-out;
+`
+
+export const LightboxImg = styled.img`
+  max-width: 90vw;
+  max-height: 85vh;
+  object-fit: contain;
+  border-radius: ${theme.radius.md};
+  box-shadow: 0 8px 40px rgba(0, 0, 0, 0.5);
 `
 
 export const InputSm = styled.input`
@@ -305,4 +364,79 @@ export const FilterMeta = styled.p`
   font-size: 0.85rem;
   color: ${theme.colors.grey};
   margin: 0 0 0.75rem;
+`
+
+
+export const ModalOverlay = styled.div`
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.45);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+`
+
+export const ModalBox = styled.div`
+  background: ${theme.colors.white};
+  border-radius: ${theme.radius.md};
+  padding: 2rem;
+  width: 100%;
+  max-width: 640px;
+  max-height: 90vh;
+  overflow-y: auto;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.18);
+`
+
+export const ModalTitle = styled.h2`
+  font-size: 1.1rem;
+  font-weight: 600;
+  margin: 0 0 1.25rem;
+  color: ${theme.colors.charcoal};
+`
+
+export const BodyPreview = styled.pre`
+  margin: 0.75rem 0 0;
+  padding: 0.75rem;
+  background: ${theme.colors.greyBg};
+  border: 1px solid ${theme.colors.border};
+  border-radius: ${theme.radius.sm};
+  font-size: 0.82rem;
+  font-family: monospace;
+  white-space: pre-wrap;
+  word-break: break-all;
+  color: ${theme.colors.charcoal};
+`
+
+export const IconBtn = styled.button`
+  position: relative;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0.25rem;
+  color: ${theme.colors.grey};
+  font-size: 1rem;
+  line-height: 1;
+  border-radius: ${theme.radius.sm};
+  &:hover { color: ${theme.colors.charcoal}; background: ${theme.colors.greyBg}; }
+
+  &[data-tooltip]::after {
+    content: attr(data-tooltip);
+    position: absolute;
+    bottom: calc(100% + 6px);
+    left: 50%;
+    transform: translateX(-50%);
+    background: ${theme.colors.charcoal};
+    color: #fff;
+    font-size: 0.72rem;
+    white-space: nowrap;
+    padding: 0.25rem 0.5rem;
+    border-radius: ${theme.radius.sm};
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.15s;
+  }
+  &[data-tooltip]:hover::after {
+    opacity: 1;
+  }
 `

@@ -22,6 +22,11 @@ public class ProductController {
         this.productService = productService;
     }
 
+    @GetMapping("/categories")
+    public ResponseEntity<List<String>> listCategories() {
+        return ResponseEntity.ok(productRepository.findDistinctCategories());
+    }
+
     @GetMapping
     public ResponseEntity<List<ProductResponse>> listProducts(
             @RequestParam(required = false) String category,

@@ -43,6 +43,56 @@ public class AdminProductService {
     }
 
     @Transactional
+    public void deleteProduct(Long productId) {
+        if (!productRepository.existsById(productId)) {
+            throw new IllegalArgumentException("Product not found");
+        }
+        productRepository.deleteById(productId);
+    }
+
+    @Transactional
+    public AdminProductResponse updateProduct(
+            Long productId,
+            String name,
+            String description,
+            double price,
+            String category,
+            int inventory,
+            String imageUrl,
+            Double rating,
+            Integer reviewCount,
+            String badge,
+            Boolean inStock,
+            MultipartFile imageFile) throws IOException {
+
+        Product p = productRepository.findById(productId)
+                .orElseThrow(() -> new IllegalArgumentException("Product not found"));
+
+        if (name == null || name.isBlank()) throw new IllegalArgumentException("Name is required");
+        if (category == null || category.isBlank()) throw new IllegalArgumentException("Category is required");
+
+        p.setName(name.trim());
+        p.setDescription(description != null ? description : "");
+        p.setPrice(price);
+        p.setCategory(category.trim());
+        p.setImageUrl(imageUrl != null && !imageUrl.isBlank() ? imageUrl.trim() : null);
+        p.setRating(rating);
+        p.setReviewCount(reviewCount);
+        p.setBadge(badge);
+        p.setInStock(inStock != null ? inStock : inventory > 0);
+        p.setInventoryQuantity(Math.max(0, inventory));
+
+        if (imageFile != null && !imageFile.isEmpty()) {
+            p.setImageData(imageFile.getBytes());
+            String ct = imageFile.getContentType();
+            p.setImageContentType(ct != null && !ct.isBlank() ? ct : "image/jpeg");
+        }
+
+        p = productRepository.save(p);
+        return productService.toAdminResponse(p);
+    }
+
+    @Transactional
     public AdminProductResponse createProduct(
             String name,
             String description,

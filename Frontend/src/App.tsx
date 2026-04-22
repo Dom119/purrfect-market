@@ -21,12 +21,15 @@ import { AdminOrdersPage } from './pages/admin/AdminOrdersPage'
 import { AdminProductsPage } from './pages/admin/AdminProductsPage'
 import { AdminNewsletterPage } from './pages/admin/AdminNewsletterPage'
 import { AdminUsersPage } from './pages/admin/AdminUsersPage'
+import { AdminSubscribersPage } from './pages/admin/AdminSubscribersPage'
+import { AdminPendingReviewsPage } from './pages/admin/AdminPendingReviewsPage'
 import { AdminDashboardPage } from './pages/admin/AdminDashboardPage'
 import { FavoritesProvider } from './context/FavoritesContext'
 import { CartProvider } from './context/CartContext'
 import { ColorThemeProvider } from './context/ThemeContext'
 import { authApi } from './api/auth'
 import type { AuthResponse } from './api/auth'
+import { EmulationBar } from './components/EmulationBar/EmulationBar'
 
 const PAGE_TITLES: Record<string, string> = {
   '/': 'Purrfect Market',
@@ -46,6 +49,8 @@ const PAGE_TITLES: Record<string, string> = {
   '/admin/orders': 'Admin — Orders | Purrfect Market',
   '/admin/products': 'Admin — Products | Purrfect Market',
   '/admin/newsletter': 'Admin — Newsletter | Purrfect Market',
+  '/admin/subscribers': 'Admin — Subscribers | Purrfect Market',
+  '/admin/reviews': 'Admin — Pending Reviews | Purrfect Market',
   '/admin/users': 'Admin — Users | Purrfect Market',
 }
 
@@ -63,14 +68,17 @@ function AppContent() {
   const [user, setUser] = useState<AuthResponse | null>(null)
   const [authReady, setAuthReady] = useState(false)
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false)
+  const [originalAdmin, setOriginalAdmin] = useState<AuthResponse | null>(null)
   const location = useLocation()
 
   useEffect(() => {
-    authApi
-      .me()
-      .then(setUser)
-      .catch(() => setUser(null))
-      .finally(() => setAuthReady(true))
+    Promise.all([
+      authApi.me().catch(() => null),
+      authApi.getEmulation().catch(() => null),
+    ]).then(([me, emulation]) => {
+      setUser(me)
+      setOriginalAdmin(emulation?.active ? emulation.originalAdmin ?? null : null)
+    }).finally(() => setAuthReady(true))
   }, [])
 
   useEffect(() => {
@@ -79,10 +87,27 @@ function AppContent() {
 
   const openAuth = () => setIsAuthModalOpen(true)
 
+  const handleStartEmulation = (targetUser: AuthResponse, admin: AuthResponse) => {
+    setUser(targetUser)
+    setOriginalAdmin(admin)
+  }
+
+  const handleStopEmulation = (restoredAdmin: AuthResponse) => {
+    setUser(restoredAdmin)
+    setOriginalAdmin(null)
+  }
+
   return (
     <FavoritesProvider user={user}>
       <CartProvider user={user}>
         <GlobalStyles />
+        {originalAdmin && user && (
+          <EmulationBar
+            emulatedUser={user}
+            originalAdmin={originalAdmin}
+            onStop={handleStopEmulation}
+          />
+        )}
         <Header
           user={user}
           onLoginSuccess={(u) => setUser(u)}
@@ -130,13 +155,15 @@ function AppContent() {
           />
           <Route
             path="/admin"
-            element={<AdminLayout user={user} authReady={authReady} onUserChange={setUser} />}
+            element={<AdminLayout user={user} authReady={authReady} onUserChange={setUser} onStartEmulation={handleStartEmulation} />}
           >
             <Route index element={<Navigate to="/admin/dashboard" replace />} />
             <Route path="dashboard" element={<AdminDashboardPage />} />
             <Route path="orders" element={<AdminOrdersPage />} />
             <Route path="products" element={<AdminProductsPage />} />
             <Route path="newsletter" element={<AdminNewsletterPage />} />
+            <Route path="subscribers" element={<AdminSubscribersPage />} />
+            <Route path="reviews" element={<AdminPendingReviewsPage />} />
             <Route path="users" element={<AdminUsersPage />} />
           </Route>
           <Route path="*" element={<NotFoundPage />} />

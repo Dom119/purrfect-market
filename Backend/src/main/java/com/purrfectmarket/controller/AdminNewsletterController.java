@@ -1,6 +1,7 @@
 package com.purrfectmarket.controller;
 
 import com.purrfectmarket.dto.AdminSubscriberResponse;
+import com.purrfectmarket.dto.BroadcastLogResponse;
 import com.purrfectmarket.dto.NewsletterBroadcastRequest;
 import com.purrfectmarket.service.AdminNewsletterService;
 import com.purrfectmarket.service.ResendEmailService;
@@ -23,6 +24,11 @@ public class AdminNewsletterController {
     @GetMapping("/subscribers")
     public ResponseEntity<List<AdminSubscriberResponse>> listSubscribers() {
         return ResponseEntity.ok(adminNewsletterService.listSubscribers());
+    }
+
+    @GetMapping("/newsletter/history")
+    public ResponseEntity<List<BroadcastLogResponse>> history() {
+        return ResponseEntity.ok(adminNewsletterService.listHistory());
     }
 
     @PostMapping("/newsletter/broadcast")
