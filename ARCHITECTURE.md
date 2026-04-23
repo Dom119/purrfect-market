@@ -3,15 +3,27 @@
 ## Overview
 
 Full-stack monorepo: a React SPA (Vite) talking to a Spring Boot REST API over HTTP.
-The frontend proxies `/api/*` to `localhost:8080` in dev; in prod they would sit behind the same reverse proxy.
+
+**Dev**: Vite proxies `/api/*` to `localhost:8080`. Backend uses H2 file DB locally.
+
+**Production**: Frontend on Vercel, backend on Railway. Vercel rewrites `/api/*` to the Railway backend URL — browser sees one origin so session cookies and auth work without CORS changes. Database is Railway managed PostgreSQL.
 
 ```
-Browser
-  └── React SPA (localhost:5173)
-        └── /api/*  ──proxy──►  Spring Boot (localhost:8080)
-                                      ├── H2 File DB
-                                      ├── Stripe API
-                                      └── Resend API
+Dev
+  Browser
+    └── React SPA (localhost:5173)
+          └── /api/*  ──proxy──►  Spring Boot (localhost:8080)
+                                        ├── H2 File DB
+                                        ├── Stripe API
+                                        └── Resend API
+
+Production
+  Browser
+    └── React SPA (Vercel)
+          └── /api/*  ──rewrite──►  Spring Boot (Railway)
+                                          ├── PostgreSQL (Railway)
+                                          ├── Stripe API
+                                          └── Resend API
 ```
 
 ---
