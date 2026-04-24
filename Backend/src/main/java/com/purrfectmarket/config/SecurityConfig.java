@@ -20,9 +20,14 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
 import java.util.List;
 
+import org.springframework.beans.factory.annotation.Value;
+
 @Configuration
 @EnableWebSecurity
 public class SecurityConfig {
+
+    @Value("${app.frontend.url:http://localhost:5173}")
+    private String frontendUrl;
 
     @Bean
     public WebSecurityCustomizer webSecurityCustomizer() {
@@ -77,7 +82,7 @@ public class SecurityConfig {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration config = new CorsConfiguration();
-        config.setAllowedOrigins(List.of("http://localhost:5173", "http://localhost:5174", "http://localhost:5175"));
+        config.setAllowedOrigins(List.of("http://localhost:5173", "http://localhost:5174", "http://localhost:5175", frontendUrl));
         config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
         config.setAllowedHeaders(List.of("*"));
         config.setAllowCredentials(true);
