@@ -8,12 +8,21 @@ export const Logo = styled.a`
   font-size: 1.5rem;
   font-weight: 700;
   color: ${theme.colors.navy};
+
+  @media (max-width: 480px) {
+    font-size: 1.1rem;
+  }
 `
 
 export const LogoIcon = styled.img`
   width: 48px;
   height: 48px;
   object-fit: contain;
+
+  @media (max-width: 480px) {
+    width: 32px;
+    height: 32px;
+  }
 `
 
 export const Nav = styled.nav`
@@ -41,7 +50,15 @@ export const StyledHeader = styled.header`
       width: 100%;
       justify-content: flex-start;
       gap: 1rem;
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+      flex-wrap: nowrap;
     }
+  }
+
+  @media (max-width: 480px) {
+    padding: 0.75rem 1rem;
+    gap: 0.75rem;
   }
 `
 
@@ -60,6 +77,10 @@ export const Actions = styled.div`
   display: flex;
   align-items: center;
   gap: 0.75rem;
+
+  @media (max-width: 480px) {
+    gap: 0.35rem;
+  }
 `
 
 export const UserName = styled.span`
@@ -89,6 +110,11 @@ export const IconButton = styled.button<{ $showTooltip?: boolean }>`
   color: ${theme.colors.charcoal};
   background: transparent;
   transition: background 0.2s, color 0.2s;
+
+  @media (max-width: 480px) {
+    width: 34px;
+    height: 34px;
+  }
 
   &:hover {
     background: ${theme.colors.greyBg};

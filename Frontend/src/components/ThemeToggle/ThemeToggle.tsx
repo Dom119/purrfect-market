@@ -22,6 +22,11 @@ const Btn = styled.button`
     background: ${theme.colors.greyBg};
     color: ${theme.colors.primary};
   }
+
+  @media (max-width: 480px) {
+    width: 34px;
+    height: 34px;
+  }
 `
 
 export function ThemeToggle() {

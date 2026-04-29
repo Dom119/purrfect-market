@@ -16,6 +16,10 @@ export const Title = styled.h1`
   font-weight: 700;
   color: ${theme.colors.navy};
   margin-bottom: 0.5rem;
+
+  @media (max-width: 480px) {
+    font-size: 1.75rem;
+  }
 `
 
 export const Subtitle = styled.p`

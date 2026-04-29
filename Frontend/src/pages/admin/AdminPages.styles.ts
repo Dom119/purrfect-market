@@ -6,6 +6,10 @@ export const AdminShell = styled.div`
   display: flex;
   min-height: calc(100vh - 80px);
   background: ${theme.colors.greyBg};
+
+  @media (max-width: 768px) {
+    flex-direction: column;
+  }
 `
 
 export const AdminSidebar = styled.aside`
@@ -18,9 +22,11 @@ export const AdminSidebar = styled.aside`
   @media (max-width: 768px) {
     width: 100%;
     display: flex;
-    flex-wrap: wrap;
+    flex-wrap: nowrap;
     gap: 0.5rem;
-    padding: 1rem;
+    padding: 0.75rem 1rem;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
   }
 `
 
@@ -35,10 +41,14 @@ export const AdminBrand = styled(Link)`
   margin-bottom: 1rem;
 
   @media (max-width: 768px) {
-    width: 100%;
+    flex-shrink: 0;
     border-bottom: none;
+    border-right: 1px solid rgba(255, 255, 255, 0.15);
     margin-bottom: 0;
-    padding-bottom: 0.5rem;
+    margin-right: 0.25rem;
+    padding: 0.35rem 1rem 0.35rem 0;
+    display: flex;
+    align-items: center;
   }
 `
 
@@ -62,9 +72,11 @@ export const SideNavLink = styled(NavLink)`
   }
 
   @media (max-width: 768px) {
-    padding: 0.5rem 0.75rem;
+    flex-shrink: 0;
+    padding: 0.4rem 0.75rem;
     border-radius: ${theme.radius.sm};
     border-left: none;
+    white-space: nowrap;
     &.active {
       background: rgba(255, 255, 255, 0.15);
     }
@@ -77,6 +89,10 @@ export const AdminMain = styled.main`
   max-width: 1100px;
   width: 100%;
   margin: 0 auto;
+
+  @media (max-width: 768px) {
+    padding: 1.5rem 1rem;
+  }
 `
 
 export const PageTitle = styled.h1`
@@ -386,6 +402,12 @@ export const ModalBox = styled.div`
   max-height: 90vh;
   overflow-y: auto;
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.18);
+
+  @media (max-width: 480px) {
+    padding: 1.25rem;
+    margin: 0 0.75rem;
+    width: calc(100% - 1.5rem);
+  }
 `
 
 export const ModalTitle = styled.h2`

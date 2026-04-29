@@ -48,6 +48,11 @@ export const HeroInner = styled.div`
     gap: 3.5rem;
     padding: 3.5rem 1.5rem 5rem;
   }
+
+  @media (max-width: 480px) {
+    gap: 2rem;
+    padding: 2.5rem 1.25rem 3.5rem;
+  }
 `
 
 export const HeroContent = styled.div`
@@ -96,6 +101,11 @@ export const Title = styled.h1`
     font-style: normal;
     color: #c4622d;
   }
+
+  @media (max-width: 480px) {
+    font-size: clamp(2.25rem, 8.5vw, 3rem);
+    margin-bottom: 1.25rem;
+  }
 `
 
 export const Subtitle = styled.p`
@@ -108,6 +118,11 @@ export const Subtitle = styled.p`
   margin-bottom: 2.75rem;
   animation: ${fadeUp} 0.75s cubic-bezier(0.22, 1, 0.36, 1) both;
   animation-delay: 0.35s;
+
+  @media (max-width: 480px) {
+    margin-bottom: 1.75rem;
+    max-width: 100%;
+  }
 `
 
 export const CtaGroup = styled.div`
@@ -122,6 +137,7 @@ export const CtaGroup = styled.div`
     flex-direction: column;
     align-items: flex-start;
     gap: 1.25rem;
+    margin-bottom: 2rem;
   }
 `
 
@@ -263,6 +279,16 @@ export const HeroImageFrame = styled.div`
       height: 400px;
     }
   }
+
+  @media (max-width: 480px) {
+    &::before {
+      display: none;
+    }
+
+    img {
+      height: 280px;
+    }
+  }
 `
 
 export const VetBadge = styled.div`
@@ -288,6 +314,12 @@ export const VetBadge = styled.div`
     font-weight: 400;
     letter-spacing: 0.05em;
     color: ${theme.colors.charcoal};
+  }
+
+  @media (max-width: 480px) {
+    left: 0;
+    bottom: -1rem;
+    padding: 0.6rem 1rem;
   }
 `
 
