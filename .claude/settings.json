@@ -1,0 +1,17 @@
+{
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash /Users/domle/projects/purrfect-market/.claude/hooks/check-tests-before-commit.sh",
+            "timeout": 600,
+            "statusMessage": "Running frontend + backend tests before commit/push..."
+          }
+        ]
+      }
+    ]
+  }
+}

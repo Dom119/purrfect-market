@@ -6,6 +6,9 @@ Frontend/node_modules/
 Frontend/dist/
 Backend/target/
 
+# Playwright test output
+test-results/
+
 # H2 database files
 Backend/data/
 

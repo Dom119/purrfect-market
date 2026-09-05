@@ -1,8 +1,3 @@
----
-description: Purrfect Market project architecture and coding conventions
-alwaysApply: true
----
-
 # Purrfect Market — Project Conventions
 
 ## Architecture

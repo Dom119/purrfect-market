@@ -2,7 +2,9 @@ package com.purrfectmarket.service;
 
 import com.purrfectmarket.dto.NewsletterBroadcastRequest;
 import com.purrfectmarket.model.NewsletterSubscriber;
+import com.purrfectmarket.repository.NewsletterBroadcastLogRepository;
 import com.purrfectmarket.repository.NewsletterSubscriberRepository;
+import com.purrfectmarket.repository.UserRepository;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -24,6 +26,10 @@ class AdminNewsletterServiceTest {
 
     @Mock
     private NewsletterSubscriberRepository subscriberRepository;
+    @Mock
+    private UserRepository userRepository;
+    @Mock
+    private NewsletterBroadcastLogRepository broadcastLogRepository;
     @Mock
     private ResendEmailService resendEmailService;
 

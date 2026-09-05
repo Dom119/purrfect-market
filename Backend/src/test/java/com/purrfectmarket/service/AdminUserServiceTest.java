@@ -3,6 +3,7 @@ package com.purrfectmarket.service;
 import com.purrfectmarket.dto.UpdateUserGroupRequest;
 import com.purrfectmarket.model.User;
 import com.purrfectmarket.model.UserGroup;
+import com.purrfectmarket.repository.NewsletterSubscriberRepository;
 import com.purrfectmarket.repository.UserRepository;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -24,6 +25,8 @@ class AdminUserServiceTest {
 
     @Mock
     private UserRepository userRepository;
+    @Mock
+    private NewsletterSubscriberRepository subscriberRepository;
 
     @InjectMocks
     private AdminUserService adminUserService;

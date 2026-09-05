@@ -66,7 +66,7 @@ test.describe('Products Page', () => {
   test('product card click opens detail modal', async ({ page }) => {
     await page.goto(`${BASE}/products`);
     await page.waitForTimeout(1500);
-    const firstCard = page.locator('article, [class*="ProductCard"]').first();
+    const firstCard = page.getByRole('button', { name: /^View details for/i }).first();
     if (await firstCard.isVisible()) {
       await firstCard.click();
       await page.waitForTimeout(800);
@@ -158,7 +158,7 @@ test.describe('Cart Page', () => {
     await login(page, ADMIN_EMAIL, ADMIN_PASS);
     await page.goto(`${BASE}/products`);
     await page.waitForTimeout(1500);
-    const firstCard = page.locator('article, [class*="ProductCard"]').first();
+    const firstCard = page.getByRole('button', { name: /^View details for/i }).first();
     if (await firstCard.isVisible()) {
       await firstCard.click();
       await page.waitForTimeout(800);

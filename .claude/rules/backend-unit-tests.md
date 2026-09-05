@@ -1,7 +1,6 @@
 ---
-description: Run and fix backend unit tests when changing Java/Spring logic
-globs: Backend/**
-alwaysApply: false
+paths:
+  - "Backend/**"
 ---
 
 # Backend — unit tests required
